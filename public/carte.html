@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Carte des entreprises — CONGLOMERAT</title>
+    <meta
+      name="description"
+      content="Explorez les entreprises camerounaises géolocalisées sur une carte interactive : Yaoundé, Douala, Bafoussam, quartier par quartier."
+    />
+    <link rel="canonical" href="https://conglomerat.cm/carte" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Carte des entreprises — CONGLOMERAT" />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <link rel="stylesheet" href="/assets/vendor/maplibre-gl.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="map" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" tabindex="-1">
+      <h1 class="visually-hidden" data-i18n="map.title">Carte des entreprises</h1>
+
+      <div class="map-page" id="map-shell">
+        <section class="map-list" id="map-list" aria-label="Entreprises de la zone">
+          <div class="map-list-head" role="button" tabindex="0" aria-expanded="false"
+               aria-controls="map-list-body">
+            <span class="grabber" aria-hidden="true"></span>
+            <div class="row-between" style="width: 100%; gap: 8px">
+              <strong id="map-count" data-i18n="map.results" data-i18n-vars='{"n":"…"}'>Entreprises dans cette zone</strong>
+              <div class="row" style="gap: 6px">
+                <select class="select" id="map-city" aria-label="Ville" style="width: auto; height: 34px"></select>
+                <select class="select" id="map-sector" aria-label="Secteur" style="width: auto; height: 34px"></select>
+              </div>
+            </div>
+          </div>
+          <div class="map-list-body" id="map-list-body">
+            <div class="skeleton" style="height: 72px"></div>
+            <div class="skeleton" style="height: 72px"></div>
+          </div>
+        </section>
+
+        <div id="map" role="application" aria-label="Carte interactive des entreprises"></div>
+
+        <div class="map-topbar">
+          <div class="map-search">
+            <span data-icon="search" data-icon-size="18" aria-hidden="true"></span>
+            <input id="map-q" type="search" autocomplete="off" placeholder="Rechercher dans la zone…"
+                   data-i18n-attr="placeholder:map.search" aria-label="Rechercher dans la zone" />
+          </div>
+          <div class="banner warning" id="map-fallback-notice" hidden></div>
+        </div>
+
+        <div class="map-fabs">
+          <button type="button" class="map-fab" id="map-locate" aria-label="Me localiser"
+                  data-i18n-attr="aria-label:map.locate">
+            <span data-icon="crosshair" data-icon-size="20"></span>
+          </button>
+          <a class="map-fab" href="/explorer" aria-label="Liste des entreprises">
+            <span data-icon="list" data-icon-size="20"></span>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Secteur d'activité — entreprises | CONGLOMERAT</title>
+    <meta name="description" content="Les entreprises d'un secteur d'activité au Cameroun : coordonnées, avis des employés et offres d'emploi en cours." />
+    <link rel="canonical" href="https://conglomerat.cm/secteurs" />
+    
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Secteur d'activité — entreprises | CONGLOMERAT" />
+    <meta property="og:description" content="Les entreprises d'un secteur d'activité au Cameroun : coordonnées, avis des employés et offres d'emploi en cours." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="sector" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/" data-i18n="nav.home">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <a href="/secteurs" data-i18n="nav.sectors">Secteurs</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page" id="sector-title">—</span>
+        </nav>
+
+        <div class="sector-hero" style="margin-top: 20px">
+          <span class="sector-icon lg" id="sector-icon" aria-hidden="true"></span>
+          <div>
+            <h1 id="sector-heading">Secteur</h1>
+            <p id="sector-subtitle" class="muted" data-i18n="sectors.subtitleShort"></p>
+            <p class="faint small" id="sector-count"></p>
+          </div>
+        </div>
+
+        <section class="section">
+          <div class="row-between" style="margin-bottom: 14px">
+            <h2 style="font-size: var(--h3)" data-i18n="sectors.companiesTitle">Entreprises du secteur</h2>
+            <a class="btn btn-ghost sm" href="/explorer">
+              <span data-i18n="sectors.explore">Explorer</span>
+              <span data-icon="arrowRight" data-icon-size="15"></span>
+            </a>
+          </div>
+          <div class="cards-grid" id="sector-companies"></div>
+        </section>
+
+        <section class="section" style="padding-top: 0">
+          <h2 style="font-size: var(--h3); margin-bottom: 14px" data-i18n="sectors.relatedTitle">Secteurs proches</h2>
+          <div class="sector-grid" id="sector-related"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

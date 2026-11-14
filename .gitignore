@@ -1,0 +1,13 @@
+# Dépendances
+node_modules/
+
+# Secrets locaux (ne jamais committer un vrai .env)
+.env
+.env.local
+.env.*.local
+
+# Artefacts locaux
+.vercel
+*.log
+.DS_Store
+tmp/

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Centre d'aide — CONGLOMERAT</title>
+    <meta name="description" content="Utiliser l'annuaire, créer une alerte emploi, publier un avis, revendiquer une fiche entreprise : les réponses aux questions les plus fréquentes." />
+    <link rel="canonical" href="https://conglomerat.cm/aide" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Centre d'aide — CONGLOMERAT" />
+    <meta property="og:description" content="Utiliser l'annuaire, créer une alerte emploi, publier un avis, revendiquer une fiche entreprise : les réponses aux questions les plus fréquentes." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page">Aide</span>
+        </nav>
+
+        <div class="section" style="padding-top: 24px">
+          <div class="prose">
+            <h1>Centre d'aide</h1>
+            <p>Tout ce qu'il faut savoir pour utiliser l'annuaire, côté visiteur comme côté entreprise.</p>
+
+            <h2>Trouver une entreprise</h2>
+            <p>
+              La recherche accepte le nom, le quartier et le besoin en langage naturel : « garage à
+              Bafoussam », « traiteur pour mariage à Douala ». Les filtres permettent ensuite d'affiner par
+              ville, secteur, note et vérification.
+            </p>
+            <p>
+              Sur la carte, chaque point correspond à une fiche publiée. Sans WebGL, la liste des résultats
+              reste disponible avec les mêmes informations.
+            </p>
+
+            <h2>Créer une alerte emploi</h2>
+            <p>
+              Depuis la page <a class="link" href="/offres">Emplois</a>, cliquez sur « Créer une alerte ».
+              Choisissez un mot-clé, une ville, un secteur et une fréquence (immédiate, quotidienne ou
+              hebdomadaire). Vous pouvez gérer et supprimer vos alertes depuis
+              <a class="link" href="/compte#alertes">votre compte</a>.
+            </p>
+
+            <h2>Publier un avis</h2>
+            <p>
+              Un avis se rédige depuis la fiche de l'entreprise, onglet « Avis ». Il faut choisir votre
+              relation avec l'entreprise (salarié, ancien salarié, stagiaire, candidat ou partenaire),
+              noter six critères et écrire au moins 40 caractères sur les points positifs et négatifs.
+            </p>
+            <p>
+              Chaque avis est relu avant publication. Les avis contenant des insultes, des données
+              personnelles ou des accusations non étayées sont refusés. Voir la
+              <a class="link" href="/charte-des-avis">charte des avis</a>.
+            </p>
+
+            <h2>Revendiquer une fiche entreprise</h2>
+            <p>
+              Si vous travaillez dans l'entreprise, ouvrez sa fiche et cliquez sur « Revendiquer cette
+              fiche ». Indiquez votre e-mail professionnel et une preuve simple (site, page officielle,
+              document). Après validation, vous pourrez corriger les coordonnées et publier des offres
+              depuis l'<a class="link" href="/espace-entreprise">espace entreprise</a>.
+            </p>
+
+            <h2>Signaler une erreur</h2>
+            <p>
+              Chaque fiche possède un bouton « Signaler » : numéro qui ne répond plus, adresse fermée,
+              doublon, usurpation. Le signalement part directement en modération.
+            </p>
+
+            <h2>Signaler une offre suspecte</h2>
+            <p>
+              Une offre qui demande de l'argent, une photocopie de carte d'identité avant entretien ou un
+              paiement Mobile Money est suspecte. Signalez-la : nous la retirons et nous pouvons suspendre
+              l'entreprise.
+            </p>
+
+            <h2>Accessibilité et données</h2>
+            <p>
+              Le site fonctionne au clavier, propose un thème clair et sombre, un mode économie de données
+              et une interface bilingue français/anglais. Voir la
+              <a class="link" href="/confidentialite">politique de confidentialité</a>.
+            </p>
+            <p>Une question sans réponse ? <a class="link" href="/contact">Écrivez-nous</a>.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

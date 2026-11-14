@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Politique de confidentialité — CONGLOMERAT</title>
+    <meta name="description" content="Quelles données nous collectons, pourquoi, combien de temps nous les conservons et comment exercer vos droits." />
+    <link rel="canonical" href="https://conglomerat.cm/confidentialite" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Politique de confidentialité — CONGLOMERAT" />
+    <meta property="og:description" content="Quelles données nous collectons, pourquoi, combien de temps nous les conservons et comment exercer vos droits." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page">Confidentialité</span>
+        </nav>
+
+        <div class="section" style="padding-top: 24px">
+          <div class="prose">
+            <h1>Politique de confidentialité</h1>
+            <p>
+              Nous collectons le minimum nécessaire pour faire fonctionner l'annuaire. Cette page décrit
+              précisément quoi, pourquoi et combien de temps.
+            </p>
+
+            <h2>Données des visiteurs</h2>
+            <ul>
+              <li><strong>Préférences locales</strong> : thème, langue, favoris, comparateur, mode économie de données. Stockés dans votre navigateur, jamais envoyés à un tiers.</li>
+              <li><strong>Mesure d'audience</strong> : comptage agrégé des consultations de fiches (vues, clics sur le téléphone, demandes d'itinéraire). Aucun profil individuel n'est constitué.</li>
+              <li><strong>Adresse IP tronquée</strong> : utilisée pour limiter les abus (anti-spam), conservée sous forme abrégée dans le journal d'audit.</li>
+            </ul>
+
+            <h2>Données des comptes</h2>
+            <ul>
+              <li>Adresse e-mail, prénom et nom si vous les fournissez.</li>
+              <li>Mot de passe stocké sous forme de condensat (scrypt), jamais en clair.</li>
+              <li>Vos favoris, alertes, candidatures et avis, rattachés à votre compte.</li>
+              <li>Date de création, de dernière connexion et rôle (utilisateur, entreprise, modérateur, administrateur).</li>
+            </ul>
+
+            <h2>Données des entreprises</h2>
+            <ul>
+              <li>Informations publiques de la fiche : nom, secteur, adresse, horaires, téléphone, réseaux.</li>
+              <li>Justificatifs de revendication (e-mail professionnel, note de preuve), visibles seulement par la modération.</li>
+            </ul>
+
+            <h2>Finalités</h2>
+            <ul>
+              <li>Publier et maintenir à jour les fiches d'entreprises.</li>
+              <li>Modérer les avis, contributions et signalements.</li>
+              <li>Envoyer les alertes emploi que vous avez demandées.</li>
+              <li>Prévenir la fraude et les abus.</li>
+            </ul>
+
+            <h2>Durées de conservation</h2>
+            <ul>
+              <li>Compte actif : tant qu'il existe.</li>
+              <li>Compte supprimé : anonymisation immédiate, purge complète sous 30 jours.</li>
+              <li>Avis publiés : conservés en anonymisé après suppression du compte, pour la cohérence des notes.</li>
+              <li>Messages de contact : 12 mois.</li>
+              <li>Journal d'audit : 24 mois.</li>
+            </ul>
+
+            <h2>Vos droits</h2>
+            <p>
+              Vous pouvez accéder à vos données, les corriger, les exporter ou demander la suppression de
+              votre compte depuis <a class="link" href="/compte#parametres">votre compte</a>, ou en écrivant à
+              <a class="link" href="mailto:bonjour@conglomerat.cm">bonjour@conglomerat.cm</a>. Nous répondons
+              sous 30 jours.
+            </p>
+
+            <h2>Cookies</h2>
+            <p>
+              Le site n'utilise pas de cookie publicitaire ni de traceur tiers. Seul un cookie technique de
+              session (HttpOnly) est posé lorsque vous vous connectez. Vos préférences sont stockées dans le
+              stockage local de votre navigateur, que vous pouvez vider à tout moment.
+            </p>
+
+            <h2>Sous-traitants</h2>
+            <p>
+              Hébergement applicatif, base de données PostgreSQL gérée et envoi d'e-mails transactionnels.
+              Aucun de ces prestataires ne reçoit de données à des fins publicitaires.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

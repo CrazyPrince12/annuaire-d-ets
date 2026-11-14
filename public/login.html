@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Connexion — CONGLOMERAT</title>
+    <meta name="description" content="Connectez-vous ou créez un compte pour suivre vos favoris, vos alertes emploi et vos avis, ou pour gérer la fiche de votre entreprise." />
+    <link rel="canonical" href="https://conglomerat.cm/login" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Connexion — CONGLOMERAT" />
+    <meta property="og:description" content="Connectez-vous ou créez un compte pour suivre vos favoris, vos alertes emploi et vos avis, ou pour gérer la fiche de votre entreprise." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="login">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="auth-page">
+        <aside class="auth-visual">
+          <a class="brand" href="/" aria-label="CONGLOMERAT">
+            <img src="/assets/img/logo-mark.svg" alt="" width="36" height="36" />
+            <span class="brand-name">CONGLOMERAT</span>
+          </a>
+          <h2 data-i18n="auth.visualTitle">L'annuaire des entreprises camerounaises, tenu à jour.</h2>
+          <ul>
+            <li><span data-icon="badgeCheck" data-icon-size="18" aria-hidden="true"></span>
+              <span data-i18n="auth.visualPoint1">Des fiches vérifiées : adresse, téléphone, horaires.</span></li>
+            <li><span data-icon="star" data-icon-size="18" aria-hidden="true"></span>
+              <span data-i18n="auth.visualPoint2">Des avis modérés, rédigés par des employés et des stagiaires.</span></li>
+            <li><span data-icon="bell" data-icon-size="18" aria-hidden="true"></span>
+              <span data-i18n="auth.visualPoint3">Des alertes emploi qui arrivent quand vous le décidez.</span></li>
+            <li><span data-icon="building2" data-icon-size="18" aria-hidden="true"></span>
+              <span data-i18n="auth.visualPoint4">Un espace entreprise pour publier vos offres.</span></li>
+          </ul>
+        </aside>
+
+        <div class="auth-form-wrap">
+          <div class="auth-form">
+            <div id="login-already" class="banner success" hidden></div>
+
+            <div class="auth-tabs" role="tablist" aria-label="Connexion ou inscription">
+              <button type="button" role="tab" data-auth-tab="login" aria-selected="true" data-i18n="auth.loginTab">
+                Connexion
+              </button>
+              <button type="button" role="tab" data-auth-tab="register" aria-selected="false" data-i18n="auth.registerTab">
+                Créer un compte
+              </button>
+            </div>
+
+            <section data-mode-panel="login">
+              <form id="login-form" class="stack" style="gap: 16px" novalidate>
+                <div class="field">
+                  <label for="login-email" data-i18n="auth.email">Adresse e-mail</label>
+                  <input class="input" id="login-email" name="email" type="email" autocomplete="email"
+                         required placeholder="vous@exemple.cm" />
+                </div>
+                <div class="field">
+                  <label for="login-password" data-i18n="auth.password">Mot de passe</label>
+                  <div class="input-icon">
+                    <input class="input" id="login-password" name="password" type="password"
+                           autocomplete="current-password" required placeholder="••••••••" />
+                    <button type="button" class="icon-btn sm" data-show-password
+                            aria-label="Afficher le mot de passe" data-icon="eye"></button>
+                  </div>
+                  <div class="row-between">
+                    <span class="hint" data-i18n="auth.passwordHint">8 caractères minimum.</span>
+                    <button type="button" class="link small" data-auth-tab="forgot"
+                            data-i18n="auth.forgot">Mot de passe oublié ?</button>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary block" data-i18n="auth.submitLogin">
+                  Se connecter
+                </button>
+              </form>
+            </section>
+
+            <section data-mode-panel="register" hidden>
+              <form id="register-form" class="stack" style="gap: 16px" novalidate>
+                <div class="form-grid two">
+                  <div class="field">
+                    <label for="register-first" data-i18n="auth.firstName">Prénom</label>
+                    <input class="input" id="register-first" name="firstName" autocomplete="given-name"
+                           maxlength="60" required />
+                  </div>
+                  <div class="field">
+                    <label for="register-email" data-i18n="auth.email">Adresse e-mail</label>
+                    <input class="input" id="register-email" name="email" type="email"
+                           autocomplete="email" required placeholder="vous@exemple.cm" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="register-password" data-i18n="auth.password">Mot de passe</label>
+                  <div class="input-icon">
+                    <input class="input" id="register-password" name="password" type="password"
+                           autocomplete="new-password" minlength="8" required placeholder="••••••••" />
+                    <button type="button" class="icon-btn sm" data-show-password
+                            aria-label="Afficher le mot de passe"></button>
+                  </div>
+                  <div class="password-strength" id="password-strength" data-level="0" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="register-confirm" data-i18n="auth.confirmPassword">Confirmer le mot de passe</label>
+                  <input class="input" id="register-confirm" name="confirmPassword" type="password"
+                         autocomplete="new-password" minlength="8" required placeholder="••••••••" />
+                </div>
+                <div class="field">
+                  <label for="register-type" data-i18n="auth.accountType">Type de compte</label>
+                  <select class="select" id="register-type" name="accountType">
+                    <option value="user" data-i18n="auth.accountUser">Chercheur d'emploi / candidat</option>
+                    <option value="company" data-i18n="auth.accountCompany">Entreprise</option>
+                  </select>
+                </div>
+                <label class="row" style="gap: 10px; align-items: flex-start">
+                  <input type="checkbox" name="acceptTerms" required />
+                  <span class="small muted" data-i18n="auth.acceptTerms">
+                    J'accepte les conditions d'utilisation et la politique de confidentialité.
+                  </span>
+                </label>
+                <button type="submit" class="btn btn-primary block" data-i18n="auth.submitRegister">
+                  Créer mon compte
+                </button>
+              </form>
+            </section>
+
+            <section data-mode-panel="forgot" hidden>
+              <form id="forgot-form" class="stack" style="gap: 16px" novalidate>
+                <p class="muted small" data-i18n="auth.forgotText">
+                  Indiquez votre adresse e-mail : nous vous envoyons un lien de réinitialisation.
+                </p>
+                <div class="field">
+                  <label for="forgot-email" data-i18n="auth.email">Adresse e-mail</label>
+                  <input class="input" id="forgot-email" name="email" type="email" autocomplete="email" required />
+                </div>
+                <button type="submit" class="btn btn-primary block" data-i18n="auth.submitForgot">
+                  Recevoir le lien
+                </button>
+                <button type="button" class="btn btn-ghost block" data-auth-tab="login"
+                        data-i18n="auth.backToLogin">Retour à la connexion</button>
+              </form>
+            </section>
+
+            <section data-mode-panel="reset" hidden>
+              <form id="reset-form" class="stack" style="gap: 16px" novalidate>
+                <h2 style="font-size: var(--h3)" data-i18n="auth.resetTitle">Nouveau mot de passe</h2>
+                <p class="muted small" data-i18n="auth.resetText">
+                  Choisissez un mot de passe de 8 caractères minimum. Le lien ne sert qu'une fois.
+                </p>
+                <div class="field">
+                  <label for="reset-password" data-i18n="auth.newPassword">Nouveau mot de passe</label>
+                  <div class="input-icon">
+                    <input class="input" id="reset-password" name="password" type="password"
+                           autocomplete="new-password" minlength="8" required placeholder="••••••••" />
+                    <button type="button" class="icon-btn sm" data-show-password
+                            aria-label="Afficher le mot de passe" data-icon="eye"></button>
+                  </div>
+                  <div class="password-strength" id="reset-strength" data-level="0" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="reset-confirm" data-i18n="auth.confirmPassword">Confirmer le mot de passe</label>
+                  <input class="input" id="reset-confirm" name="confirmPassword" type="password"
+                         autocomplete="new-password" minlength="8" required placeholder="••••••••" />
+                </div>
+                <button type="submit" class="btn btn-primary block" data-i18n="auth.submitReset">
+                  Enregistrer le mot de passe
+                </button>
+                <a class="btn btn-ghost block" href="/login" data-i18n="auth.backToLogin">Retour à la connexion</a>
+              </form>
+            </section>
+
+            <div class="divider" data-i18n="auth.demoDivider">Comptes de démonstration</div>
+            <p class="notice-small" data-i18n="auth.demoText">
+              Données fictives : les comptes ci-dessous ouvrent chacun un espace différent.
+            </p>
+            <div class="choice-grid two" id="demo-accounts"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

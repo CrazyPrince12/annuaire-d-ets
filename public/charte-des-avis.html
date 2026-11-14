@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Charte des avis — CONGLOMERAT</title>
+    <meta name="description" content="Les règles de publication des avis : anonymat, preuve d'expérience, respect des personnes, motifs de refus et voies de contestation." />
+    <link rel="canonical" href="https://conglomerat.cm/charte-des-avis" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Charte des avis — CONGLOMERAT" />
+    <meta property="og:description" content="Les règles de publication des avis : anonymat, preuve d'expérience, respect des personnes, motifs de refus et voies de contestation." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page">Charte des avis</span>
+        </nav>
+
+        <div class="section" style="padding-top: 24px">
+          <div class="prose">
+            <h1>Charte des avis</h1>
+            <p>
+              Les avis sont le cœur de l'annuaire : ils aident à choisir un employeur, un stage, un
+              prestataire. Pour qu'ils restent utiles, ils suivent les règles ci-dessous.
+            </p>
+
+            <h2>1. Qui peut écrire</h2>
+            <ul>
+              <li>Les personnes ayant réellement travaillé, fait un stage ou candidaté dans l'entreprise.</li>
+              <li>Les clients et partenaires, à condition de le déclarer (relation « client / partenaire »).</li>
+              <li>Une personne, un avis par entreprise et par période de douze mois.</li>
+            </ul>
+
+            <h2>2. Ce qui est publié</h2>
+            <ul>
+              <li>Une note globale et six notes par critère : ambiance, management, conditions, salaire, évolution, stage.</li>
+              <li>Un titre court, des points positifs et des points négatifs.</li>
+              <li>Facultativement : le poste occupé, la période et un conseil aux candidats.</li>
+            </ul>
+
+            <h2>3. Ce qui est refusé</h2>
+            <ul>
+              <li>Les insultes, menaces et propos discriminatoires.</li>
+              <li>Les noms de personnes physiques et les données personnelles (numéros, adresses, e-mails).</li>
+              <li>Les accusations graves non étayées (fraude, harcèlement) sans décision de justice ou preuve.</li>
+              <li>La publicité, les liens promotionnels et les avis rédigés par l'entreprise elle-même.</li>
+              <li>Les avis trop courts ou purement émotionnels, sans exemple concret.</li>
+            </ul>
+
+            <h2>4. Comment nous modérons</h2>
+            <p>
+              Chaque avis est lu par une personne de l'équipe. Nous vérifions la cohérence de la relation
+              déclarée, l'absence de données personnelles et le respect des règles. Un avis peut être :
+              publié, publié après modification mineure, refusé avec motif, ou masqué après signalement.
+            </p>
+            <p>
+              Le délai cible est de 48 heures. Un badge « expérience vérifiée » distingue les avis dont
+              l'expérience a été confirmée (e-mail professionnel, contrat ou attestation).
+            </p>
+
+            <h2>5. Contestation</h2>
+            <p>
+              Une entreprise peut contester un avis depuis son espace ou par e-mail, en indiquant le motif
+              précis. Un avis contesté est réexaminé ; il n'est retiré que s'il enfreint cette charte, jamais
+              parce qu'il déplaît.
+            </p>
+
+            <h2>6. Données et anonymat</h2>
+            <p>
+              Les avis sont publiés sous un pseudonyme. Votre adresse e-mail n'est jamais affichée. Elle sert
+              uniquement à vérifier l'expérience et à vous prévenir de la décision de modération.
+            </p>
+            <p>
+              Les règles complètes de traitement des données sont dans la
+              <a class="link" href="/confidentialite">politique de confidentialité</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

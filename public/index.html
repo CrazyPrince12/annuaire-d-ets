@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>CONGLOMERAT — Annuaire des entreprises du Cameroun</title>
+    <meta
+      name="description"
+      content="Trouvez les entreprises camerounaises qui font le travail : coordonnées vérifiées, avis authentiques, horaires, itinéraires et offres d'emploi à Yaoundé, Douala et Bafoussam."
+    />
+    <link rel="canonical" href="https://conglomerat.cm/" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:locale" content="fr_CM" />
+    <meta property="og:title" content="CONGLOMERAT — L'annuaire des entreprises du Cameroun" />
+    <meta
+      property="og:description"
+      content="Coordonnées vérifiées, avis modérés, horaires réels et itinéraires. Yaoundé, Douala, Bafoussam."
+    />
+    <meta property="og:url" content="https://conglomerat.cm/" />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+
+    <script>
+      /* Thème appliqué avant le premier rendu : évite tout flash clair. */
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://conglomerat.cm/#website",
+            "url": "https://conglomerat.cm/",
+            "name": "CONGLOMERAT",
+            "inLanguage": "fr-CM",
+            "description": "Annuaire des entreprises du Cameroun.",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://conglomerat.cm/explorer?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://conglomerat.cm/#organization",
+            "name": "CONGLOMERAT",
+            "url": "https://conglomerat.cm/",
+            "logo": "https://conglomerat.cm/assets/img/icon-512.png",
+            "email": "bonjour@conglomerat.cm",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Rue 1.234, Bastos",
+              "addressLocality": "Yaoundé",
+              "addressCountry": "CM"
+            }
+          }
+        ]
+      }
+    </script>
+  </head>
+
+  <body class="page" data-page="home" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+
+    <header class="site-header" id="site-header"></header>
+
+    <noscript>
+      <div class="banner warning">
+        <span>Activez JavaScript pour profiter de la recherche et de la carte.</span>
+        <a class="link" href="/explorer.html">Explorer les entreprises</a>
+      </div>
+    </noscript>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <!-- Héros ------------------------------------------------------------ -->
+      <section class="hero">
+        <div class="hero-bg" aria-hidden="true"></div>
+        <div class="hero-grain" aria-hidden="true"></div>
+        <div class="container">
+          <div class="hero-inner">
+            <p class="hero-pill">
+              <span class="dot" aria-hidden="true"></span>
+              <span id="hero-pill-text" data-i18n="home.hero.pill">Nouveau · entreprises référencées</span>
+            </p>
+
+            <h1>
+              <span data-i18n="home.hero.title">Trouvez l'entreprise qu'il vous faut,</span><br />
+              <span class="grad" data-i18n="home.hero.titleAccent">près de chez vous.</span>
+            </h1>
+
+            <p class="hero-sub" data-i18n="home.hero.sub">
+              Annuaire indépendant des entreprises camerounaises : coordonnées vérifiées, avis publiés après
+              modération, horaires réels et itinéraires.
+            </p>
+
+            <div class="hero-search">
+              <form class="search-pill" id="hero-search-form" role="search" novalidate>
+                <div class="segment">
+                  <label for="hero-q" data-i18n="home.hero.searchLabel">Que cherchez-vous ?</label>
+                  <input
+                    id="hero-q"
+                    name="q"
+                    type="search"
+                    autocomplete="off"
+                    enterkeyhint="search"
+                    placeholder="Plombier, cabinet comptable, restaurant…"
+                    data-i18n-attr="placeholder:search.placeholder"
+                  />
+                </div>
+                <div class="segment">
+                  <label for="hero-city" data-i18n="home.hero.whereLabel">Où ?</label>
+                  <select id="hero-city" name="ville" class="select-plain"></select>
+                </div>
+                <button class="btn-round" type="submit" aria-label="Rechercher" data-i18n-attr="aria-label:search.submit">
+                  <span data-icon="search"></span>
+                </button>
+              </form>
+
+              <button class="search-mobile" type="button" data-open-search>
+                <span data-icon="search"></span>
+                <span data-i18n="search.placeholder">Entreprise, métier, quartier…</span>
+              </button>
+            </div>
+
+            <div class="hero-quick">
+              <span class="faint small" data-i18n="home.quick">Populaire :</span>
+              <button class="chip sm" type="button" data-quick="comptable">Comptable</button>
+              <button class="chip sm" type="button" data-quick="restaurant">Restaurant</button>
+              <button class="chip sm" type="button" data-quick="plombier">Plombier</button>
+              <button class="chip sm" type="button" data-quick="informatique">Informatique</button>
+            </div>
+
+            <div class="hero-stats">
+              <div>
+                <div class="num" id="stat-companies">—</div>
+                <div class="label" data-i18n="home.hero.stat.companies">entreprises référencées</div>
+              </div>
+              <div>
+                <div class="num" id="stat-reviews">—</div>
+                <div class="label" data-i18n="home.hero.stat.reviews">avis vérifiés</div>
+              </div>
+              <div>
+                <div class="num" id="stat-cities">3</div>
+                <div class="label" data-i18n="home.hero.stat.cities">villes couvertes</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="container">
+        <div id="home-error" hidden></div>
+
+        <!-- Villes --------------------------------------------------------- -->
+        <section class="section" aria-labelledby="cities-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-i18n="nav.cities">Villes</p>
+              <h2 id="cities-title" data-i18n="home.cities.title">Commencez par votre ville</h2>
+              <p data-i18n="home.cities.sub">
+                Trois villes de lancement, une même exigence de vérification.
+              </p>
+            </div>
+            <a class="btn btn-ghost sm" href="/villes">
+              <span data-i18n="common.seeAll">Tout voir</span>
+              <span data-icon="arrowRight"></span>
+            </a>
+          </div>
+          <div class="city-grid" id="home-cities">
+            <div class="skeleton" style="height: 200px; border-radius: 24px"></div>
+            <div class="skeleton" style="height: 200px; border-radius: 24px"></div>
+            <div class="skeleton" style="height: 200px; border-radius: 24px"></div>
+          </div>
+        </section>
+
+        <!-- Secteurs -------------------------------------------------------- -->
+        <section class="section" aria-labelledby="sectors-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-i18n="nav.sectors">Secteurs</p>
+              <h2 id="sectors-title" data-i18n="home.sectors.title">Parcourir par secteur</h2>
+              <p data-i18n="home.sectors.sub">
+                De l'artisanat au conseil, les métiers qui font tourner l'économie locale.
+              </p>
+            </div>
+            <a class="btn btn-ghost sm" href="/secteurs">
+              <span data-i18n="nav.sectors">Secteurs</span>
+              <span data-icon="arrowRight"></span>
+            </a>
+          </div>
+          <div class="sector-grid" id="home-sectors">
+            <div class="skeleton" style="height: 116px; border-radius: 16px"></div>
+            <div class="skeleton" style="height: 116px; border-radius: 16px"></div>
+            <div class="skeleton" style="height: 116px; border-radius: 16px"></div>
+            <div class="skeleton" style="height: 116px; border-radius: 16px"></div>
+          </div>
+        </section>
+
+        <!-- Vérifiées ------------------------------------------------------- -->
+        <section class="section" aria-labelledby="verified-title" hidden>
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-i18n="common.verified">Vérifiées</p>
+              <h2 id="verified-title" data-i18n="home.featured.title">Entreprises vérifiées</h2>
+              <p data-i18n="home.featured.sub">
+                Siret camerounais, adresse et téléphone contrôlés par notre équipe.
+              </p>
+            </div>
+            <a class="btn btn-ghost sm" href="/explorer?verif=verified">
+              <span data-i18n="common.seeAll">Tout voir</span><span data-icon="arrowRight"></span>
+            </a>
+          </div>
+          <div class="carousel" id="home-verified"></div>
+        </section>
+
+        <!-- Mieux notées ----------------------------------------------------- -->
+        <section class="section" aria-labelledby="top-title" hidden>
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-i18n="common.reviews">Avis</p>
+              <h2 id="top-title" data-i18n="home.topRated.title">Les mieux notées</h2>
+              <p data-i18n="home.topRated.sub">
+                Classement fondé sur les avis publiés, jamais sur un paiement.
+              </p>
+            </div>
+            <a class="btn btn-ghost sm" href="/avis">
+              <span data-i18n="nav.reviews">Avis</span><span data-icon="arrowRight"></span>
+            </a>
+          </div>
+          <div class="carousel" id="home-top"></div>
+        </section>
+
+        <!-- Nouvelles -------------------------------------------------------- -->
+        <section class="section" aria-labelledby="new-title" hidden>
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-i18n="common.new">Nouveau</p>
+              <h2 id="new-title" data-i18n="home.new.title">Nouvellement référencées</h2>
+              <p data-i18n="home.new.sub">Les dernières fiches validées par la modération.</p>
+            </div>
+            <a class="btn btn-ghost sm" href="/explorer?tri=recentes">
+              <span data-i18n="common.seeAll">Tout voir</span><span data-icon="arrowRight"></span>
+            </a>
+          </div>
+          <div class="carousel" id="home-new"></div>
+        </section>
+
+        <!-- Offres ----------------------------------------------------------- -->
+        <section class="section" aria-labelledby="offers-title" hidden>
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-i18n="nav.offers">Emplois</p>
+              <h2 id="offers-title" data-i18n="home.offers.title">Ils recrutent maintenant</h2>
+              <p data-i18n="home.offers.sub">
+                Offres d'emploi et stages publiés directement par les entreprises.
+              </p>
+            </div>
+            <a class="btn btn-ghost sm" href="/offres">
+              <span data-i18n="home.offers.cta">Toutes les offres</span>
+              <span data-icon="arrowRight"></span>
+            </a>
+          </div>
+          <div class="stack" id="home-offers"></div>
+        </section>
+
+        <!-- Comment ça marche ------------------------------------------------ -->
+        <section class="section" aria-labelledby="how-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-i18n="common.of">Comment</p>
+              <h2 id="how-title" data-i18n="home.how.title">Comment ça marche</h2>
+            </div>
+          </div>
+          <div class="bento">
+            <article class="bento-card" data-reveal>
+              <span class="bento-icon" data-icon="search" aria-hidden="true"></span>
+              <h3 data-i18n="home.how.step1.title">Cherchez</h3>
+              <p data-i18n="home.how.step1.text">
+                Un métier, un nom, un quartier : les résultats sont classés par pertinence et proximité.
+              </p>
+            </article>
+            <article class="bento-card" data-reveal>
+              <span class="bento-icon" data-icon="shieldCheck" aria-hidden="true"></span>
+              <h3 data-i18n="home.how.step2.title">Vérifiez</h3>
+              <p data-i18n="home.how.step2.text">
+                Les fiches vérifiées affichent leurs coordonnées confirmées et leur date de dernière mise
+                à jour.
+              </p>
+            </article>
+            <article class="bento-card" data-reveal>
+              <span class="bento-icon" data-icon="mapPin" aria-hidden="true"></span>
+              <h3 data-i18n="home.how.step3.title">Décidez</h3>
+              <p data-i18n="home.how.step3.text">
+                Comparez, lisez les avis modérés, appelez ou lancez l'itinéraire en un geste.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Pourquoi ---------------------------------------------------------- -->
+        <section class="section" aria-labelledby="why-title">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow" data-i18n="nav.about">À propos</p>
+              <h2 id="why-title">Pourquoi CONGLOMERAT</h2>
+              <p data-i18n="home.why.sub">
+                Un annuaire utile se juge sur la fraîcheur des données et la qualité des avis.
+              </p>
+            </div>
+          </div>
+          <div class="bento">
+            <article class="bento-card span-2" data-reveal>
+              <span class="bento-icon" data-icon="badgeCheck" aria-hidden="true"></span>
+              <h3 data-i18n="home.why.1.title">Zéro faux avis</h3>
+              <p data-i18n="home.why.1.text">
+                Chaque avis passe par une modération humaine. Un avis par personne et par entreprise,
+                réponse possible du dirigeant.
+              </p>
+            </article>
+            <article class="bento-card" data-reveal>
+              <span class="bento-icon" data-icon="clock" aria-hidden="true"></span>
+              <h3 data-i18n="home.why.2.title">Fiches à jour</h3>
+              <p data-i18n="home.why.2.text">
+                Les entreprises revendiquent leur fiche et corrigent elles-mêmes leurs horaires, numéros
+                et services.
+              </p>
+            </article>
+            <article class="bento-card" data-reveal>
+              <span class="bento-icon" data-icon="smartphone" aria-hidden="true"></span>
+              <h3 data-i18n="home.why.3.title">Utilisable partout</h3>
+              <p data-i18n="home.why.3.text">
+                Pages légères, mode économie de données, hors-ligne partiel : pensé pour la 3G de Yaoundé
+                comme pour la fibre.
+              </p>
+            </article>
+            <article class="bento-card span-2" data-reveal>
+              <span class="bento-icon" data-icon="wallet" aria-hidden="true"></span>
+              <h3 data-i18n="home.why.4.title">Transparent sur l'argent</h3>
+              <p data-i18n="home.why.4.text">
+                Le classement ne s'achète pas. Les fiches premium sont signalées, jamais favorisées dans
+                les résultats organiques.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Contribuer -------------------------------------------------------- -->
+        <section class="section">
+          <div class="card pad-lg home-contribute" data-reveal>
+            <div>
+              <h2 data-i18n="home.contribute.title">Votre entreprise n'est pas encore là ?</h2>
+              <p class="muted" data-i18n="home.contribute.text">
+                Ajoutez-la en trois minutes. Notre équipe vérifie les informations avant publication —
+                sans frais.
+              </p>
+            </div>
+            <a class="btn btn-primary" href="/contribuer">
+              <span data-icon="plus"></span>
+              <span data-i18n="home.contribute.cta">Référencer une entreprise</span>
+            </a>
+          </div>
+          <p class="notice-small" id="home-demo-note" style="margin-top: 16px"></p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+# CONGLOMERAT — annuaire des entreprises du Cameroun
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /compte
+Disallow: /espace-entreprise
+Disallow: /api/
+Disallow: /comparer
+Disallow: /login
+Disallow: /hors-ligne
+
+# Les robots sociaux n'ont pas besoin des paramètres de filtre.
+User-agent: GPTBot
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: https://conglomerat.cm/sitemap.xml

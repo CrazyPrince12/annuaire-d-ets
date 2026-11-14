@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Entreprises par ville — CONGLOMERAT</title>
+    <meta name="description" content="Toutes les entreprises publiées dans cette ville : contacts, horaires, avis et offres d'emploi." />
+    <link rel="canonical" href="https://conglomerat.cm/villes" />
+    
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Entreprises par ville — CONGLOMERAT" />
+    <meta property="og:description" content="Toutes les entreprises publiées dans cette ville : contacts, horaires, avis et offres d'emploi." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="city" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/" data-i18n="nav.home">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <a href="/villes" data-i18n="nav.cities">Villes</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page" id="city-title">—</span>
+        </nav>
+
+        <div class="section-head" style="margin-top: 20px">
+          <div>
+            <h1 id="city-crumb">Entreprises à <span data-i18n="common.here">…</span></h1>
+            <p id="city-subtitle" class="muted" data-i18n="cities.subtitleShort"></p>
+          </div>
+          <div class="row" style="gap: 8px">
+            <a class="btn btn-secondary sm" id="city-map-link" href="/carte">
+              <span data-icon="map" data-icon-size="16"></span>
+              <span data-i18n="cities.mapCta">Voir sur la carte</span>
+            </a>
+            <a class="btn btn-ghost sm" id="city-explore-link" href="/explorer">
+              <span data-i18n="cities.exploreCta">Filtrer</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="stat-grid three" id="city-stats"></div>
+
+        <section class="section" style="padding-top: 0">
+          <div class="row-between" style="margin-bottom: 10px">
+            <h2 style="font-size: var(--h3)" data-i18n="cities.quarters">Quartiers</h2>
+          </div>
+          <div class="chips wrap" id="city-quarters"></div>
+        </section>
+
+        <section class="section" style="padding-top: 0">
+          <div class="row-between" style="margin-bottom: 14px">
+            <h2 style="font-size: var(--h3)" data-i18n="cities.companiesTitle">Entreprises publiées</h2>
+          </div>
+          <div class="cards-grid" id="city-companies"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

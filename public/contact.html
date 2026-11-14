@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Contact — CONGLOMERAT</title>
+    <meta name="description" content="Une erreur sur une fiche, une demande de partenariat, une question sur la modération ? Écrivez à l'équipe CONGLOMERAT." />
+    <link rel="canonical" href="https://conglomerat.cm/contact" />
+    
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Contact — CONGLOMERAT" />
+    <meta property="og:description" content="Une erreur sur une fiche, une demande de partenariat, une question sur la modération ? Écrivez à l'équipe CONGLOMERAT." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="contact" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/" data-i18n="nav.home">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page" data-i18n="nav.contact">Contact</span>
+        </nav>
+
+        <div class="section-head" style="margin-top: 20px">
+          <div>
+            <h1 data-i18n="contact.title">Nous écrire</h1>
+            <p data-i18n="contact.subtitle">
+              Nous répondons sous deux jours ouvrés. Pour signaler une fiche, le bouton « Signaler » de la page entreprise est plus rapide.
+            </p>
+          </div>
+        </div>
+
+        <div class="contact-layout">
+          <form id="contact-form" class="card pad-lg stack" style="gap: 16px" novalidate>
+            <div class="form-grid two">
+              <div class="field">
+                <label for="contact-name" data-i18n="contact.name">Votre nom</label>
+                <input class="input" id="contact-name" name="name" autocomplete="name" required maxlength="80" />
+              </div>
+              <div class="field">
+                <label for="contact-email" data-i18n="auth.email">Adresse e-mail</label>
+                <input class="input" id="contact-email" name="email" type="email" autocomplete="email"
+                       required placeholder="vous@exemple.cm" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="contact-subject" data-i18n="contact.subject">Sujet</label>
+              <select class="select" id="contact-subject" name="subject">
+                <option value="information" data-i18n="contact.subjectInfo">Demande d'information</option>
+                <option value="correction" data-i18n="contact.subjectCorrection">Correction d'une fiche</option>
+                <option value="entreprise" data-i18n="contact.subjectBusiness">Revendiquer une entreprise</option>
+                <option value="partenariat" data-i18n="contact.subjectPartnership">Partenariat</option>
+                <option value="bug" data-i18n="contact.subjectBug">Problème technique</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="contact-message" data-i18n="contact.message">Message</label>
+              <textarea class="textarea" id="contact-message" name="message" rows="7" required
+                        minlength="20" maxlength="2000" data-i18n-placeholder="contact.messageHint"></textarea>
+              <span class="hint" data-i18n="contact.messageHint">20 caractères minimum.</span>
+            </div>
+            <label class="row" style="gap: 10px; align-items: flex-start">
+              <input type="checkbox" name="consent" required />
+              <span class="small muted" data-i18n="contact.consent">
+                J'accepte que ces informations servent uniquement à traiter ma demande.
+              </span>
+            </label>
+            <button type="submit" class="btn btn-primary" data-i18n="contact.submit">Envoyer le message</button>
+          </form>
+
+          <aside class="stack" style="gap: 14px">
+            <div class="card">
+              <h2 style="font-size: var(--text-md)" data-i18n="contact.ways">Autres moyens</h2>
+              <ul class="contact-list">
+                <li><span data-icon="mail" data-icon-size="16" aria-hidden="true"></span>
+                  <a class="link" href="mailto:bonjour@conglomerat.cm">bonjour@conglomerat.cm</a></li>
+                <li><span data-icon="phone" data-icon-size="16" aria-hidden="true"></span>
+                  <a class="link" href="tel:+237600000000">+237 6 00 00 00 00</a></li>
+                <li><span data-icon="mapPin" data-icon-size="16" aria-hidden="true"></span>
+                  <span data-i18n="contact.address">Yaoundé, Cameroun</span></li>
+              </ul>
+            </div>
+            <div class="card">
+              <h2 style="font-size: var(--text-md)" data-i18n="contact.claimTitle">Vous gérez une entreprise ?</h2>
+              <p class="small muted" data-i18n="contact.claimText">
+                Revendiquez votre fiche pour corriger vos coordonnées et publier vos offres.
+              </p>
+              <a class="btn btn-secondary sm" href="/espace-entreprise" data-i18n="contact.claimCta">
+                Espace entreprise
+              </a>
+            </div>
+            <div class="card">
+              <h2 style="font-size: var(--text-md)" data-i18n="contact.helpTitle">Questions fréquentes</h2>
+              <a class="link small" href="/aide" data-i18n="nav.help">Centre d'aide</a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

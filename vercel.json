@@ -1,0 +1,197 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "outputDirectory": "public",
+  "trailingSlash": false,
+  "cleanUrls": false,
+  "functions": {
+    "api/*.js": {
+      "maxDuration": 15
+    },
+    "api/**/*.js": {
+      "maxDuration": 15
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/explorer",
+      "destination": "/explorer.html"
+    },
+    {
+      "source": "/carte",
+      "destination": "/carte.html"
+    },
+    {
+      "source": "/entreprises",
+      "destination": "/explorer.html"
+    },
+    {
+      "source": "/entreprises/:slug",
+      "destination": "/entreprise.html"
+    },
+    {
+      "source": "/secteurs",
+      "destination": "/secteurs.html"
+    },
+    {
+      "source": "/secteurs/:slug",
+      "destination": "/secteur.html"
+    },
+    {
+      "source": "/villes",
+      "destination": "/villes.html"
+    },
+    {
+      "source": "/villes/:slug",
+      "destination": "/ville.html"
+    },
+    {
+      "source": "/offres",
+      "destination": "/offres.html"
+    },
+    {
+      "source": "/offres/:slug",
+      "destination": "/offre.html"
+    },
+    {
+      "source": "/stages",
+      "destination": "/offres.html?type=stage"
+    },
+    {
+      "source": "/avis",
+      "destination": "/avis.html"
+    },
+    {
+      "source": "/comparer",
+      "destination": "/comparer.html"
+    },
+    {
+      "source": "/contribuer",
+      "destination": "/contribuer.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/connexion",
+      "destination": "/login.html"
+    },
+    {
+      "source": "/inscription",
+      "destination": "/login.html?mode=register"
+    },
+    {
+      "source": "/compte",
+      "destination": "/compte.html"
+    },
+    {
+      "source": "/espace-entreprise",
+      "destination": "/espace-entreprise.html"
+    },
+    {
+      "source": "/premium",
+      "destination": "/premium.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/admin.html"
+    },
+    {
+      "source": "/a-propos",
+      "destination": "/a-propos.html"
+    },
+    {
+      "source": "/aide",
+      "destination": "/aide.html"
+    },
+    {
+      "source": "/charte-des-avis",
+      "destination": "/charte-des-avis.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/mentions-legales",
+      "destination": "/mentions-legales.html"
+    },
+    {
+      "source": "/confidentialite",
+      "destination": "/confidentialite.html"
+    },
+    {
+      "source": "/conditions",
+      "destination": "/conditions.html"
+    },
+    {
+      "source": "/plan-du-site",
+      "destination": "/plan-du-site.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/hors-ligne",
+      "destination": "/hors-ligne.html"
+    },
+    {
+      "source": "/llms.txt",
+      "destination": "/api/llms"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(self), camera=(), microphone=(self)"
+        }
+      ]
+    },
+    {
+      "source": "/admin.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ]
+}

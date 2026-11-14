@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Explorer les entreprises — CONGLOMERAT</title>
+    <meta
+      name="description"
+      content="Filtrez les entreprises camerounaises par ville, secteur, note et vérification. Coordonnées, horaires, avis et itinéraires à Yaoundé, Douala et Bafoussam."
+    />
+    <link rel="canonical" href="https://conglomerat.cm/explorer" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Explorer les entreprises — CONGLOMERAT" />
+    <meta
+      property="og:description"
+      content="Trouvez le bon prestataire par ville, secteur et note. Annuaire vérifié des entreprises du Cameroun."
+    />
+    <meta property="og:url" content="https://conglomerat.cm/explorer" />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="explorer" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" aria-label="Fil d'Ariane" style="padding-top: 16px">
+          <a href="/" data-i18n="nav.home">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page" data-i18n="nav.explore">Explorer</span>
+        </nav>
+
+        <div class="section-head" style="margin-top: 20px">
+          <div>
+            <h1 data-i18n="explore.title">Explorer les entreprises</h1>
+            <p id="explore-subtitle" data-i18n="explore.subtitle">
+              Filtrez par secteur, ville, note et services.
+            </p>
+          </div>
+        </div>
+
+        <div class="explorer-layout">
+          <aside class="filters-panel" id="filters-panel" aria-label="Filtres"></aside>
+
+          <div>
+            <div class="explorer-toolbar">
+              <label class="input-icon" style="flex: 1; min-width: 220px; max-width: 460px">
+                <span data-icon="search" data-icon-size="17" aria-hidden="true"></span>
+                <input
+                  class="input"
+                  id="explorer-search"
+                  type="search"
+                  name="q"
+                  autocomplete="off"
+                  enterkeyhint="search"
+                  placeholder="Nom, activité, quartier…"
+                  data-i18n-attr="placeholder:explore.search"
+                  aria-label="Rechercher une entreprise"
+                />
+              </label>
+
+              <div class="row" style="gap: 8px">
+                <label class="visually-hidden" for="sort-select" data-i18n="explore.sort">Trier par</label>
+                <select class="select" id="sort-select" style="width: auto">
+                  <option value="pertinence" data-i18n="explore.sort.relevance">Pertinence</option>
+                  <option value="notes" data-i18n="explore.sort.rating">Mieux notées</option>
+                  <option value="populaires" data-i18n="explore.sort.popular">Les plus consultées</option>
+                  <option value="recentes" data-i18n="explore.sort.recent">Nouvelles</option>
+                  <option value="recrutent" data-i18n="explore.sort.hiring">Qui recrutent</option>
+                </select>
+
+                <div class="view-toggle" role="group" aria-label="Affichage">
+                  <button type="button" data-view="grille" aria-pressed="true" aria-label="Grille">
+                    <span data-icon="layoutGrid" data-icon-size="16"></span>
+                  </button>
+                  <button type="button" data-view="liste" aria-pressed="false" aria-label="Liste">
+                    <span data-icon="list" data-icon-size="16"></span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <p class="results-count" id="results-count" aria-live="polite"></p>
+            <div class="active-filters" id="active-filters" hidden></div>
+            <div id="results-notice" hidden style="margin-bottom: 16px"></div>
+
+            <div class="company-list company-grid" id="results"></div>
+
+            <div class="load-more" id="load-more-wrap" hidden>
+              <button type="button" class="btn btn-secondary" id="load-more">
+                <span data-i18n="explore.loadMore">Afficher plus de résultats</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-fab">
+        <button type="button" class="btn btn-secondary" id="open-filters">
+          <span data-icon="slidersHorizontal" data-icon-size="17"></span>
+          <span data-i18n="common.filters">Filtres</span>
+        </button>
+        <a class="btn btn-ghost" href="/carte">
+          <span data-icon="map" data-icon-size="17"></span>
+          <span data-i18n="nav.map">Carte</span>
+        </a>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+
+    <dialog id="filters-sheet">
+      <div class="sheet">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 data-i18n="explore.sheetTitle">Filtrer les résultats</h2>
+          <button type="button" class="icon-btn sm" id="close-filters" aria-label="Fermer">
+            <span data-icon="x" data-icon-size="18"></span>
+          </button>
+        </div>
+        <div class="sheet-body" id="filters-sheet-body"></div>
+        <div class="sheet-foot">
+          <button type="button" class="btn btn-primary" id="apply-filters" data-i18n="explore.filters.apply">
+            Voir les résultats
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <script type="module" src="/assets/js/core/app.js"></script>
+    <script>
+      document.getElementById("apply-filters")?.addEventListener("click", () => {
+        document.getElementById("filters-sheet")?.close();
+      });
+    </script>
+  </body>
+</html>

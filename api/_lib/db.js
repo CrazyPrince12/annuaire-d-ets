@@ -1,0 +1,116 @@
+/**
+ * Accès à la base de données.
+ *
+ * Deux modes, même code SQL :
+ *   1. NEON (production) — dès que DATABASE_URL est définie : pool serverless
+ *      HTTP de @neondatabase/serverless, compatible Vercel.
+ *   2. DÉMONSTRATION (par défaut) — base PostgreSQL embarquée (PGlite) en
+ *      mémoire, amorcée avec le jeu de données de /data/seed. Permet de visiter
+ *      le site et de tester l'admin avant même d'avoir créé un projet Neon.
+ *      Les écritures sont perdues au redémarrage de la fonction.
+ */
+import { SCHEMA_SQL } from "../../db/schema.mjs";
+import { seedDatabase } from "../../db/load.mjs";
+
+let driverPromise = null;
+let demoSeedInfo = null;
+
+export function databaseMode() {
+  return process.env.DATABASE_URL ? "neon" : "demo";
+}
+
+export function isDemoDatabase() {
+  return databaseMode() === "demo";
+}
+
+export function demoSeedReport() {
+  return demoSeedInfo;
+}
+
+async function createDriver() {
+  if (process.env.DATABASE_URL) {
+    const { neon } = await import("@neondatabase/serverless");
+    const sql = neon(process.env.DATABASE_URL);
+    return {
+      mode: "neon",
+      query: async (text, params = []) => {
+        const rows = await sql.query(text, params);
+        return Array.isArray(rows) ? rows : [];
+      },
+    };
+  }
+
+  // Mode démonstration : PostgreSQL compilé en WebAssembly, en mémoire.
+  const { PGlite } = await import("@electric-sql/pglite");
+  const pg = new PGlite();
+  const query = async (text, params = []) => {
+    const result = await pg.query(text, params);
+    return result.rows || [];
+  };
+  await pg.exec(SCHEMA_SQL);
+  demoSeedInfo = await seedDatabase(query);
+  console.info(
+    `[db] Mode démonstration : ${demoSeedInfo.companies} entreprises, ${demoSeedInfo.reviews} avis, ` +
+      `${demoSeedInfo.offers} offres chargés en mémoire. Définissez DATABASE_URL (Neon) pour la persistance.`
+  );
+  return { mode: "pglite", query };
+}
+
+export async function getDriver() {
+  if (!driverPromise) driverPromise = createDriver();
+  return driverPromise;
+}
+
+/** Renvoie un tableau de lignes. */
+export async function query(text, params = []) {
+  const driver = await getDriver();
+  return driver.query(text, params);
+}
+
+/** Renvoie la première ligne ou null. */
+export async function one(text, params = []) {
+  const rows = await query(text, params);
+  return rows.length ? rows[0] : null;
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Réglages du site (cache mémoire 30 s)                                      */
+/* -------------------------------------------------------------------------- */
+let settingsCache = { at: 0, value: null };
+
+export async function getSettings({ force = false } = {}) {
+  const now = Date.now();
+  if (!force && settingsCache.value && now - settingsCache.at < 30000) {
+    return settingsCache.value;
+  }
+  const rows = await query("SELECT key, value FROM settings");
+  const value = {};
+  for (const row of rows) value[row.key] = row.value;
+  // Valeurs par défaut si la base a été vidée.
+  value.site_name ||= "CONGLOMERAT";
+  value.min_reviews_for_rating ||= 3;
+  value.min_reviews_for_ranking ||= 5;
+  value.payment_mode ||= "demo";
+  value.features ||= {};
+  settingsCache = { at: now, value };
+  return value;
+}
+
+export async function setSetting(key, value) {
+  await query(
+    `INSERT INTO settings (key, value, updated_at) VALUES ($1, $2::jsonb, NOW())
+     ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+    [key, JSON.stringify(value)]
+  );
+  settingsCache = { at: 0, value: null };
+}
+
+/** Utilisé par le script d'installation et les tests. */
+export async function healthCheck() {
+  try {
+    const rows = await query("SELECT COUNT(*)::int AS companies FROM companies");
+    return { ok: true, mode: databaseMode(), companies: rows[0]?.companies ?? 0 };
+  } catch (error) {
+    return { ok: false, mode: databaseMode(), error: String(error?.message || error) };
+  }
+}
