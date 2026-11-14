@@ -152,6 +152,12 @@ export function handler(fn) {
         fail(res, error.status, error.message, error.details);
         return;
       }
+      // Base absente (déploiement sans DATABASE_URL) : message actionnable,
+      // pas une erreur 500 opaque.
+      if (error?.code === "db_unavailable") {
+        fail(res, 503, error.message, { code: error.code, detail: error.detail || null });
+        return;
+      }
       console.error("[api] erreur inattendue", error);
       if (!res.headersSent) {
         fail(res, 500, "Une erreur est survenue de notre côté. Merci de réessayer.");

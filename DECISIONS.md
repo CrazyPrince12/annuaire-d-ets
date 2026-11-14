@@ -148,3 +148,20 @@ production, `RESEND_API_KEY` active l'envoi réel sans changement de code.
 **Décision.** Les balises `og:image` pointent sur un JPG statique (`og-default.jpg`) car les
 robots sociaux n'exécutent pas JavaScript. `/api/og?slug=…` fournit en complément un SVG
 1200 × 630 à jour (nom, ville, secteur, note) pour les usages qui chargent l'image dynamiquement.
+
+### 21. PGlite hors des fonctions serverless
+
+**Décision.** Le mode démonstration (PGlite, PostgreSQL en WebAssembly) reste un confort de
+développement local, jamais un composant déployé. `api/_lib/db.js` l'importe par un
+spécificateur calculé pour que le bundler de Vercel ne le trace pas.
+
+**Pourquoi.** PGlite pèse 23 Mo, dont `postgres.wasm` (8,1 Mo) et `postgres.data` (5,4 Mo).
+Le bundler le recopiait dans chaque fonction : 41 fonctions × 14,5 Mo ≈ 540 Mo d'artefacts,
+le build réussissait (`Build Completed in /vercel/output`) puis le déploiement cassait à
+« Deploying outputs… ». Chaque fonction fait désormais 0,5 Mo. `maxDuration` est ramené à 10 s,
+plafond des fonctions Node du plan Hobby (15 s faisait refuser le déploiement).
+
+**Conséquence.** En ligne, `DATABASE_URL` (Neon) est obligatoire. Sans elle, l'API répond 503
+avec un message actionnable et `/api/health` affiche `database: "unconfigured"`. Le contrôle
+« Poids des fonctions » de `npm run check` interdit la réapparition d'un import statique de
+PGlite ou de `sharp` dans `api/`.
