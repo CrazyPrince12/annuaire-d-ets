@@ -180,6 +180,15 @@ check("Icônes", () => {
     const key = name.replace(/-(.)/g, (_, c) => c.toUpperCase());
     if (!names.has(key)) errors.push(`icône inconnue « ${name} » (${where})`);
   }
+  // La clé `x` doit rester la croix de fermeture de Lucide, pas le logo du
+  // réseau social : sinon tous les boutons « quitter » affichent la marque.
+  const xBlock = iconsSource.match(/^\s{2}x:\s*\n\s*'([^']+)'/m)?.[1] || "";
+  if (!xBlock.includes("M18 6 6 18")) {
+    errors.push("icons.js : la clé « x » n'est plus la croix de fermeture (marque X nommée xBrand ?)");
+  }
+  if (!iconsSource.includes("\n  xBrand:")) {
+    errors.push("icons.js : clé « xBrand » absente — relancez `npm run icons`");
+  }
   return `${used.size} icônes utilisées / ${names.size} disponibles`;
 });
 

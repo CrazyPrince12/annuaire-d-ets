@@ -123,23 +123,23 @@ function headerMarkup() {
             <kbd>/</kbd>
           </button>
 
-          <button type="button" class="icon-btn search-mobile-btn" data-open-search
-                  aria-label="${esc(t("search.open"))}">${icon("search", { size: 20 })}</button>
+          <!-- Outils secondaires : masqués sur mobile (le tiroir les reprend). -->
+          <div class="header-tools">
+            <a class="icon-btn header-fav" href="/compte#favoris" aria-label="${esc(t("nav.favorites"))}">
+              ${icon("heart", { size: 20 })}
+              <span class="badge-dot" data-favorites-count hidden>0</span>
+            </a>
 
-          <a class="icon-btn header-fav" href="/compte#favoris" aria-label="${esc(t("nav.favorites"))}">
-            ${icon("heart", { size: 20 })}
-            <span class="badge-dot" data-favorites-count hidden>0</span>
-          </a>
+            <button type="button" class="icon-btn" data-theme-toggle
+                    aria-label="${esc(t("theme.switch"))}">
+              <span data-theme-icon class="theme-icon"></span>
+            </button>
 
-          <button type="button" class="icon-btn" data-theme-toggle
-                  aria-label="${esc(t("theme.switch"))}">
-            <span data-theme-icon class="theme-icon"></span>
-          </button>
-
-          <button type="button" class="icon-btn lang-btn" data-lang-toggle
-                  aria-label="${esc(t("lang.switch"))}" title="${esc(t("lang.switch"))}">
-            ${icon("languages", { size: 20 })}
-          </button>
+            <button type="button" class="icon-btn lang-btn" data-lang-toggle
+                    aria-label="${esc(t("lang.switch"))}" title="${esc(t("lang.switch"))}">
+              ${icon("languages", { size: 20 })}
+            </button>
+          </div>
 
           <div class="header-auth" data-auth-zone>${authZone()}</div>
 
@@ -168,10 +168,14 @@ function mobileMenuMarkup() {
       </button>
     </div>
     <nav aria-label="${esc(t("nav.mainNav"))}">
+      <button type="button" class="mm-search" data-open-search aria-label="${esc(t("search.open"))}">
+        ${icon("search", { size: 20 })} ${t("search.open")}
+      </button>
       ${MAIN_LINKS.map(
         (link) => `<a href="${link.href}">${icon(link.icon, { size: 20 })} ${t(link.key)}</a>`
       ).join("")}
       <div class="group-label">${t("nav.more")}</div>
+      <a href="/compte#favoris">${icon("heart", { size: 20 })} ${t("nav.favorites")}</a>
       <a href="/avis">${icon("star", { size: 20 })} ${t("nav.reviews")}</a>
       <a href="/contribuer">${icon("plus", { size: 20 })} ${t("nav.contribute")}</a>
       <a href="/comparer">${icon("scale", { size: 20 })} ${t("nav.compare")}</a>
@@ -259,7 +263,7 @@ function footerMarkup() {
           <a href="${SITE.social.linkedin}" target="_blank" rel="noopener noreferrer"
              aria-label="LinkedIn">${icon("linkedin", { size: 18 })}</a>
           <a href="${SITE.social.x}" target="_blank" rel="noopener noreferrer"
-             aria-label="X">${icon("x", { size: 18 })}</a>
+             aria-label="X">${icon("xBrand", { size: 18 })}</a>
           <a href="${SITE.social.instagram}" target="_blank" rel="noopener noreferrer"
              aria-label="Instagram">${icon("instagram", { size: 18 })}</a>
         </div>
@@ -571,6 +575,11 @@ function wireMobileMenu() {
   $$("#mobile-menu a").forEach((link) =>
     link.addEventListener("click", () => closeMobileMenu({ restore: false }))
   );
+  // La recherche s'ouvre par délégation (search.js) : on referme le tiroir
+  // d'abord pour ne pas superposer deux surfaces modales.
+  $("#mobile-menu")?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-open-search]")) closeMobileMenu({ restore: false });
+  });
 }
 
 function wireLang() {

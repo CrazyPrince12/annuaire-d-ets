@@ -37,9 +37,11 @@ action:"purge_demo"}` les supprime en une fois (confirmation `SUPPRIMER`).
 
 ### 4. Icônes SVG intégrées, pas de police d'icônes
 
-**Décision.** `scripts/gen-icons.mjs` extrait 130 tracés de `lucide-static` et les embarque dans
+**Décision.** `scripts/gen-icons.mjs` extrait 131 tracés de `lucide-static` et les embarque dans
 `icons.js` (26 Ko, arbre de 24 × 24). Aucune requête réseau, aucun FOUT, `currentColor` partout.
-Les icônes de marque (WhatsApp, LinkedIn, Facebook, X, Google, Instagram) sont dessinées à la main.
+Les icônes de marque (WhatsApp, LinkedIn, Facebook, Google, Instagram, `xBrand`) sont dessinées à la
+main. La clé de la marque X porte un suffixe (`xBrand`) pour ne jamais écraser l'icône Lucide `x`,
+qui est la croix de fermeture de tous les boutons « quitter » (voir décision 22).
 Deux icônes manquantes dans Lucide (`maps`, `table-cells-large`) ont été remplacées par `map` et
 `table-2`.
 
@@ -165,3 +167,34 @@ plafond des fonctions Node du plan Hobby (15 s faisait refuser le déploiement).
 avec un message actionnable et `/api/health` affiche `database: "unconfigured"`. Le contrôle
 « Poids des fonctions » de `npm run check` interdit la réapparition d'un import statique de
 PGlite ou de `sharp` dans `api/`.
+
+### 22. La clé d'icône `x` est la croix, jamais la marque
+
+**Contexte.** Le générateur fusionnait les tracés Lucide et les marques dessinées à la main dans le
+même objet : la marque « X » (ex-Twitter) écrasait silencieusement l'icône `x` de Lucide. Tous les
+boutons de fermeture (tiroir, palette de recherche, toasts, bannières, puces de filtre) affichaient
+donc le logo du réseau social — confus, et juridiquement sensible (marque déposée).
+
+**Décision.** La marque est nommée `xBrand` dans `scripts/gen-icons.mjs`, `x` reste la croix de
+Lucide. Le pied de page utilise `icon("xBrand")`. `npm run check` échoue si la clé `x` ne contient
+plus le tracé de la croix ou si `xBrand` disparaît.
+
+### 23. Barre du haut à trois paliers sur mobile
+
+**Contexte.** Sur un téléphone de 360 px, la barre du haut alignait six contrôles (marque, recherche,
+favoris, thème, langue, menu) : débordement horizontal, donc page qui glisse latéralement. Et le
+bouton de recherche de l'en-tête doublonnait celui du héros d'accueil.
+
+**Décision.** Trois paliers explicites dans `components.css` :
+
+- **< 768 px** : marque + bouton menu seulement. Recherche, favoris, thème, langue et compte vivent
+  dans le tiroir (qui gagne une entrée « Rechercher » et un lien « Favoris »).
+- **768–1023 px** : recherche + outils secondaires (` .header-tools`), navigation encore dans le
+  tiroir — la barre était déjà saturée à 768 px avec les cinq liens.
+- **≥ 1024 px** : barre complète : navigation, recherche, outils ; entre 1024 et 1279 px, espacements
+  et largeurs sont compactés pour tenir sur une ligne.
+
+`html { overflow-x: clip }` sert de filet de sécurité (contrairement à `hidden`, `clip` préserve le
+`position: sticky` de l'en-tête et de la barre d'onglets). `npm run smoke` vérifie le chrome :
+`.header-tools` présent, aucun `.search-mobile-btn` dans l'en-tête, recherche et favoris dans le
+tiroir.
