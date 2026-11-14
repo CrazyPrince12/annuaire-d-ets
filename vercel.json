@@ -5,10 +5,10 @@
   "cleanUrls": false,
   "functions": {
     "api/*.js": {
-      "maxDuration": 15
+      "maxDuration": 10
     },
     "api/**/*.js": {
-      "maxDuration": 15
+      "maxDuration": 10
     }
   },
   "rewrites": [

@@ -53,11 +53,13 @@ npm run check                 # vérifie que les deux versions sont cohérentes
 
 ## Variables d'environnement
 
-Toutes sont facultatives en local.
+Toutes sont facultatives en local. **En production, `DATABASE_URL` et `AUTH_SECRET` sont
+obligatoires** : le mode démonstration (PGlite) n'est pas embarqué dans les fonctions
+serverless — voir la note de déploiement ci-dessous.
 
 | Variable | Défaut | Rôle |
 | --- | --- | --- |
-| `DATABASE_URL` | — | Chaîne Neon. Absente = PGlite en mémoire (démo). |
+| `DATABASE_URL` | — | Chaîne Neon. Absente = PGlite en mémoire (démo, **local uniquement**). |
 | `AUTH_SECRET` | généré | Clé de signature des cookies de session. **À définir en production.** |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `credentials.js` | Surcharge du compte super administrateur. |
 | `PAYMENT_MODE` | `demo` | Paiement Mobile Money simulé (code `123456`). |
@@ -125,9 +127,26 @@ Le bouton de chaque carte de démonstration remplit et soumet le formulaire.
 Les en-têtes de sécurité (nosniff, frame-options, referrer-policy, permissions-policy) et le
 `noindex` de `/admin` sont déclarés dans `vercel.json`.
 
+### Pourquoi `DATABASE_URL` est indispensable sur Vercel
+
+Le mode démonstration s'appuie sur PGlite, qui embarque un binaire WebAssembly de 13,5 Mo
+(`postgres.wasm` + `postgres.data`). Traçé par le bundler de Vercel, ce binaire était recopié
+dans **chacune** des 41 fonctions serverless (≈ 540 Mo au total) : le build passait, puis le
+déploiement échouait à l'étape « Deploying outputs… ».
+
+`api/_lib/db.js` charge donc PGlite par un spécificateur calculé, invisible du bundler : chaque
+fonction est passée de **14,5 Mo à 0,5 Mo**. En contrepartie, sans `DATABASE_URL` la base n'existe
+pas en ligne — l'API répond alors `503` avec un message explicite (« Définissez DATABASE_URL… »)
+au lieu d'une erreur 500, et `/api/health` renvoie `database: "unconfigured"`.
+
+Autres garde-fous de `vercel.json` : `maxDuration: 10` (limite des fonctions Node du plan Hobby ;
+une valeur supérieure fait refuser le déploiement). `npm run check` vérifie que ni PGlite ni
+`sharp` ne sont réimportés statiquement dans `api/` (contrôle « Poids des fonctions »).
+
 ## Qualité
 
-- `npm run check` : 10 contrôles statiques (dont 885 clés i18n en FR **et** EN).
+- `npm run check` : 11 contrôles statiques (dont 885 clés i18n en FR **et** EN, et le poids
+  des fonctions serverless).
 - `npm run smoke` : 19 pages initialisées dans un DOM simulé (`linkedom`), sans navigateur.
 - `npm run db:check` : 27 contrôles d'intégrité.
 - Accessibilité : navigation clavier, `aria-*` explicites, contrastes contrôlés, `prefers-reduced-motion`.

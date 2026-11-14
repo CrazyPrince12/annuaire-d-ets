@@ -13,6 +13,9 @@
  *   7. Imports statiques : les chemins relatifs existent.
  *   8. Le schéma SQL généré (`db/schema.mjs`) contient toutes les tables du `.sql`.
  *   9. Aucun texte de remplissage (« lorem ipsum », « TODO », « à compléter »).
+ *  10. Poids des fonctions : aucun paquet lourd (PGlite, sharp) importé
+ *      statiquement depuis `api/`, sinon Vercel copie 13 Mo de wasm dans
+ *      chaque fonction et le déploiement casse à « Deploying outputs… ».
  */
 
 import fs from "node:fs";
@@ -280,6 +283,41 @@ check("Doublons de clés i18n", () => {
     }
   }
   return "ok";
+});
+
+/* ------------------------------------------- 10. Poids des fonctions */
+check("Poids des fonctions serverless", () => {
+  // PGlite embarque postgres.wasm (8 Mo) + postgres.data (5,4 Mo) et sharp des
+  // binaires natifs : cités littéralement dans une fonction, le bundler les
+  // recopie dans chaque fonction (≈ 540 Mo) et Vercel échoue à l'étape
+  // « Deploying outputs… ». On les charge donc via un spécificateur calculé
+  // (cf. api/_lib/db.js) : aucun littéral ne doit subsister dans api/.
+  const heavy = ["@electric-sql/pglite", "sharp"];
+  const files = [];
+  const collect = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) collect(full);
+      else if (entry.name.endsWith(".js")) files.push(full);
+    }
+  };
+  collect(path.join(ROOT, "api"));
+  for (const file of files) {
+    const src = fs.readFileSync(file, "utf8");
+    for (const name of heavy) {
+      const quoted = [`"${name}"`, `'${name}'`];
+      if (quoted.some((needle) => src.includes(needle))) {
+        errors.push(`${rel(file)} : ${name} cité littéralement — utilisez un spécificateur calculé (cf. api/_lib/db.js)`);
+      }
+    }
+  }
+  const config = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"));
+  for (const [pattern, options] of Object.entries(config.functions || {})) {
+    if ((options.maxDuration || 0) > 10) {
+      errors.push(`vercel.json : maxDuration ${options.maxDuration} pour ${pattern} dépasse la limite Hobby (10 s)`);
+    }
+  }
+  return `${files.length} fichiers api/`;
 });
 
 /* -------------------------------------------------------------- Résultats */
