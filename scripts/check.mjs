@@ -71,13 +71,13 @@ const jsFiles = [];
 walk(PUBLIC, (file) => {
   if (file.endsWith(".js") && !file.endsWith("sw.js")) jsFiles.push(file);
 });
-walk(path.join(ROOT, "api"), (file) => {
+walk(path.join(ROOT, "server-api"), (file) => {
   if (file.endsWith(".js")) jsFiles.push(file);
 });
 walk(path.join(ROOT, "scripts"), (file) => {
   if (file.endsWith(".js") || file.endsWith(".mjs")) jsFiles.push(file);
 });
-for (const file of [path.join(ROOT, "dev.mjs"), path.join(ROOT, "credentials.js"), path.join(ROOT, "db/schema.mjs"), path.join(ROOT, "db/load.mjs")]) {
+for (const file of [path.join(ROOT, "server.js"), path.join(ROOT, "credentials.js"), path.join(ROOT, "db/schema.mjs"), path.join(ROOT, "db/load.mjs")]) {
   if (fs.existsSync(file)) jsFiles.push(file);
 }
 check("Syntaxe JavaScript", () => {
@@ -93,16 +93,21 @@ check("Syntaxe JavaScript", () => {
 });
 
 /* --------------------------------------------------------- 3. Réécritures */
-check("Réécritures vercel.json", () => {
+check("Routage Express / Vercel", () => {
   const config = JSON.parse(fs.readFileSync(path.join(ROOT, "vercel.json"), "utf8"));
+  if (config.framework === "express") {
+    if (fs.existsSync(path.join(ROOT, "api"))) errors.push("Le dossier api déploierait des fonctions supplémentaires.");
+    if (config.outputDirectory) errors.push("Express ne doit pas définir outputDirectory.");
+    return "application server.js ; pages et API testées par npm test";
+  }
   let count = 0;
   for (const rule of config.rewrites || []) {
     const destination = rule.destination.split("?")[0];
     if (destination.startsWith("/api/")) {
       const base = destination.replace(/^\/api\//, "");
       const candidates = [
-        path.join(ROOT, "api", `${base}.js`),
-        path.join(ROOT, "api", base, "index.js"),
+        path.join(ROOT, "server-api", `${base}.js`),
+        path.join(ROOT, "server-api", base, "index.js"),
       ];
       if (!candidates.some((file) => fs.existsSync(file))) {
         errors.push(`réécriture ${rule.source} → ${rule.destination} : fonction absente`);
@@ -310,7 +315,7 @@ check("Poids des fonctions serverless", () => {
       else if (entry.name.endsWith(".js")) files.push(full);
     }
   };
-  collect(path.join(ROOT, "api"));
+  collect(path.join(ROOT, "server-api"));
   for (const file of files) {
     const src = fs.readFileSync(file, "utf8");
     for (const name of heavy) {
