@@ -94,17 +94,44 @@
   height: 18px;
 }
 
-.header-search {
-  display: none;
-}
-.header-nav {
+.header-nav,
+.header-tools,
+.header-auth {
   display: none;
 }
 
+/* `.search-mini` déclare `display: flex` plus bas : il faut deux classes pour
+   que la pilule de recherche reste réellement masquée sur mobile. */
+.search-mini.header-search {
+  display: none;
+}
+
+/* Barre du haut : logo + navigation + recherche + outils.
+   • < 768 px  : logo et bouton menu seulement (le tiroir reprend le reste,
+                 y compris la recherche, déjà présente dans le héros d'accueil).
+   • 768–1023  : la recherche et les outils apparaissent, la navigation reste
+                 dans le tiroir (une barre saturée débordait en 768 et 900).
+   • ≥ 1024    : navigation horizontale complète. */
 @media (min-width: 768px) {
   .header-inner {
     gap: var(--space-5);
   }
+  .search-mini.header-search {
+    display: flex;
+  }
+  .header-tools {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .header-auth {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+}
+
+@media (min-width: 1024px) {
   .header-nav {
     display: flex;
     align-items: center;
@@ -127,21 +154,30 @@
     color: var(--text);
     background: var(--surface-2);
   }
-  .header-search {
-    display: flex;
-  }
-  .header-auth {
-    display: flex;
-  }
   .header-menu-btn {
     display: none !important;
   }
 }
 
-.header-auth {
-  display: none;
-  align-items: center;
-  gap: var(--space-2);
+/* Entre 1024 et 1279 px, tout doit tenir sur une seule ligne : on compacte. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .header-inner {
+    gap: var(--space-3);
+  }
+  .header-nav a {
+    padding-inline: 8px;
+    font-size: var(--text-xs);
+  }
+  .search-mini {
+    width: 150px;
+  }
+  .search-mini:hover,
+  .search-mini:focus-within {
+    width: 200px;
+  }
+  .header-fav {
+    display: none;
+  }
 }
 
 /* « Île de verre » flottante sur grand écran */
@@ -1589,6 +1625,18 @@ tbody tr:hover {
 .mobile-menu nav button:hover {
   background: var(--surface-2);
 }
+/* Entrée « Rechercher » du tiroir : c'est le seul accès à la palette sur mobile,
+   la barre du haut n'a plus de bouton de recherche. */
+.mobile-menu nav .mm-search {
+  margin-bottom: var(--space-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+.mobile-menu nav .mm-search svg {
+  color: var(--primary);
+}
 .mobile-menu nav svg {
   width: 20px;
   height: 20px;
@@ -1974,14 +2022,6 @@ tbody tr:hover {
   }
   .header-login span {
     display: inline;
-  }
-}
-.search-mobile-btn {
-  display: inline-grid !important;
-}
-@media (min-width: 768px) {
-  .search-mobile-btn {
-    display: none !important;
   }
 }
 .lang-btn {

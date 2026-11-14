@@ -9,6 +9,9 @@
  *   - une exception au premier rendu (sélecteur vide, donnée manquante),
  *   - un import cassé.
  *
+ * Il vérifie aussi le chrome partagé (une seule fois) : en-tête, tiroir mobile et
+ * accès à la recherche — c'est là que se cachent les régressions de navigation.
+ *
  * Ce test ne remplace pas une vérification visuelle : il vérifie que la page
  * « démarre » sans erreur, ce qui est la cause la plus fréquente de page blanche.
  */
@@ -103,6 +106,35 @@ function payloadFor(pathname) {
 
 const results = [];
 
+/**
+ * En-tête et tiroir : sur mobile, la barre du haut ne doit contenir que le logo
+ * et le bouton menu — la recherche et les outils vivent dans le tiroir.
+ */
+function chromeProblems(document) {
+  const problems = [];
+  const header = document.querySelector(".site-header");
+  if (!header) {
+    problems.push("en-tête absent");
+  } else {
+    if (!header.querySelector(".header-tools")) problems.push("bloc .header-tools absent");
+    if (header.querySelector(".search-mobile-btn")) {
+      problems.push("bouton de recherche mobile encore dans l'en-tête");
+    }
+    if (!header.querySelector("[data-open-menu]")) problems.push("bouton menu absent");
+  }
+  const menu = document.querySelector("#mobile-menu");
+  if (!menu) {
+    problems.push("tiroir mobile absent");
+  } else {
+    if (!menu.querySelector("[data-open-search]")) problems.push("recherche absente du tiroir");
+    if (!menu.querySelector('a[href="/compte#favoris"]')) problems.push("lien favoris absent du tiroir");
+    if (!menu.querySelector("[data-close-menu]")) problems.push("bouton fermer absent du tiroir");
+  }
+  return problems;
+}
+
+let chromeReport = null;
+
 for (const [page, htmlFile, jsFile, pathname] of PAGES) {
   const html = fs.readFileSync(path.join(PUBLIC, htmlFile), "utf8");
   const { window, document } = parseHTML(html);
@@ -157,12 +189,17 @@ for (const [page, htmlFile, jsFile, pathname] of PAGES) {
     configurable: true,
   });
   globalThis.history = { replaceState() {}, pushState() {} };
-  globalThis.CustomEvent = class CustomEvent {
-    constructor(type, options = {}) {
-      this.type = type;
-      this.detail = options.detail;
-    }
-  };
+  // `window.dispatchEvent` n'accepte que de vrais événements : on réutilise
+  // l'implémentation de linkedom quand elle existe (sinon, app.js/nav.js
+  // plantent sur `dispatchEvent(new CustomEvent(...))`).
+  globalThis.CustomEvent =
+    window.CustomEvent ||
+    class CustomEvent {
+      constructor(type, options = {}) {
+        this.type = type;
+        this.detail = options.detail;
+      }
+    };
   globalThis.IntersectionObserver = class {
     observe() {}
     unobserve() {}
@@ -202,6 +239,19 @@ for (const [page, htmlFile, jsFile, pathname] of PAGES) {
     const module = await import(`file://${PUBLIC}/assets/js/pages/${jsFile}?smoke=${page}`);
     if (typeof module.init === "function") await module.init({ user: null });
     const missing = errors.filter((message) => message.includes("[i18n] clé manquante"));
+    if (chromeReport === null) {
+      // Les modules de page ne montent pas le chrome : c'est `core/app.js` qui
+      // appelle `initNav()`. On le monte ici pour contrôler l'en-tête et le tiroir.
+      const nav = await import(`file://${PUBLIC}/assets/js/core/nav.js?smoke=chrome`);
+      await nav.initNav();
+      const problems = chromeProblems(document);
+      chromeReport = problems;
+      results.push({
+        page: "chrome",
+        ok: problems.length === 0,
+        message: problems.length ? problems.join(" · ") : "",
+      });
+    }
     results.push({
       page,
       ok: missing.length === 0,
@@ -225,4 +275,4 @@ if (failed) {
   console.log(`  ${failed} page(s) en échec.\n`);
   process.exit(1);
 }
-console.log(`  ${results.length} pages démarrent sans erreur.\n`);
+console.log(`  ${results.length} contrôles passent (pages + chrome partagé).\n`);

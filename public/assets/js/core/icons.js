@@ -1,7 +1,7 @@
 /**
  * Icônes SVG (Lucide, licence ISC + quelques marques dessinées à la main).
  * FICHIER GÉNÉRÉ — ne pas modifier à la main : lancer `npm run icons`.
- * 130 icônes, 24.6 Ko.
+ * 131 icônes, 24.6 Ko.
  */
 export const ICONS = {
   alertTriangle:
@@ -261,6 +261,8 @@ export const ICONS = {
   wrench:
     '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z" />',
   x:
+    '<path d="M18 6 6 18" /><path d="m6 6 12 12" />',
+  xBrand:
     '<path fill="currentColor" stroke="none" d="M17.5 3h2.9l-6.35 7.26L21.5 21h-5.8l-4.55-5.94L5.9 21H3l6.8-7.77L2.7 3h5.95l4.1 5.42L17.5 3Zm-1.02 16.2h1.6L7.6 4.72H5.9l10.58 14.48Z"/>',
   zap:
     '<path d="M15.914 4a1.5 1.5 0 00-2.474-1.561l-9 9A1.5 1.5 0 005.5 14h4.002a.5.5 0 01.471.666L8.086 20a1.5 1.5 0 002.475 1.56l9-9A1.5 1.5 0 0018.5 10h-3.997a.5.5 0 01-.472-.667z" />',

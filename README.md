@@ -35,12 +35,12 @@ npm run db:check          # contrôles d'intégrité
 | --- | --- |
 | `npm run dev` / `npm start` | Serveur local (`dev.mjs`) : applique les réécritures de `vercel.json`, sert `/api/*` et `public/`. |
 | `npm run check` | Vérifications statiques : syntaxe, i18n FR/EN, icônes, imports, réécritures, schéma. |
-| `npm run smoke` | Fumée DOM : initialise les 19 pages dans un DOM simulé et échoue à la moindre exception. |
+| `npm run smoke` | Fumée DOM : initialise les 19 pages dans un DOM simulé + contrôle du chrome partagé, et échoue à la moindre exception. |
 | `npm run db:init` | Applique `db/schema.sql` sur la base cible. |
 | `npm run db:seed` | Charge `data/seed` (idempotent). |
 | `npm run db:check` | Contrôle d'intégrité des données (publication, notes, téléphones, offres). |
 | `npm run assets` | Régénère logos, favicons et image Open Graph (`sharp`). |
-| `npm run icons` | Régénère `public/assets/js/core/icons.js` depuis `lucide-static` (130 icônes). |
+| `npm run icons` | Régénère `public/assets/js/core/icons.js` depuis `lucide-static` (131 icônes). |
 | `npm run vendor` | Recopie MapLibre GL dans `public/assets/vendor`. |
 
 Le schéma est **double** : `db/schema.sql` fait foi et `db/schema.mjs` en est la version
@@ -147,7 +147,8 @@ une valeur supérieure fait refuser le déploiement). `npm run check` vérifie q
 
 - `npm run check` : 11 contrôles statiques (dont 885 clés i18n en FR **et** EN, et le poids
   des fonctions serverless).
-- `npm run smoke` : 19 pages initialisées dans un DOM simulé (`linkedom`), sans navigateur.
+- `npm run smoke` : 19 pages initialisées dans un DOM simulé (`linkedom`) + 1 contrôle du chrome
+  partagé (en-tête minimal sur mobile, recherche et favoris présents dans le tiroir), sans navigateur.
 - `npm run db:check` : 27 contrôles d'intégrité.
 - Accessibilité : navigation clavier, `aria-*` explicites, contrastes contrôlés, `prefers-reduced-motion`.
 - Performance : aucune étape de build, CSS critique unique, polices `woff2` locales, MapLibre

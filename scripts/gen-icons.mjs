@@ -58,7 +58,10 @@ const BRAND = {
     '<rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37Z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />',
   facebook:
     '<path fill="currentColor" stroke="none" d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H8v3h2v7h3v-7h3l1-3h-4v-2c0-.55.45-1 1-1Z"/>',
-  x: '<path fill="currentColor" stroke="none" d="M17.5 3h2.9l-6.35 7.26L21.5 21h-5.8l-4.55-5.94L5.9 21H3l6.8-7.77L2.7 3h5.95l4.1 5.42L17.5 3Zm-1.02 16.2h1.6L7.6 4.72H5.9l10.58 14.48Z"/>',
+  // ⚠️ Ne jamais nommer une marque « x » : la clé écraserait l'icône Lucide `x`
+  // (la croix de fermeture) et tous les boutons « quitter » afficheraient le
+  // logo du réseau social. D'où le suffixe explicite `xBrand`.
+  xBrand: '<path fill="currentColor" stroke="none" d="M17.5 3h2.9l-6.35 7.26L21.5 21h-5.8l-4.55-5.94L5.9 21H3l6.8-7.77L2.7 3h5.95l4.1 5.42L17.5 3Zm-1.02 16.2h1.6L7.6 4.72H5.9l10.58 14.48Z"/>',
   google:
     '<path fill="currentColor" stroke="none" d="M21.6 12.23c0-.72-.06-1.24-.19-1.79H12v3.24h5.5c-.11.9-.71 2.25-2.04 3.16l-.02.13 2.96 2.29.2.02c1.88-1.74 2.96-4.3 2.96-7.05ZM12 21.6c2.7 0 4.96-.89 6.6-2.42l-3.15-2.44c-.84.59-1.98 1-3.45 1a5.98 5.98 0 0 1-5.66-4.14l-.12.01-3.06 2.37-.04.12A10.4 10.4 0 0 0 12 21.6ZM6.34 13.6a6.4 6.4 0 0 1-.35-2.05c0-.71.13-1.4.34-2.05l-.01-.14L3.2 6.96l-.1.05A10.4 10.4 0 0 0 2 11.55c0 1.65.4 3.2 1.1 4.55l3.24-2.5Zm5.66-8.73c1.83 0 3.06.79 3.77 1.45l2.75-2.68C16.95 1.87 14.7 1 12 1A10.4 10.4 0 0 0 3.1 6.9l3.24 2.5A5.99 5.99 0 0 1 12 4.87Z"/>',
 };
