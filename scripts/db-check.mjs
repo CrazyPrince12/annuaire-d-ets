@@ -9,7 +9,7 @@
  * Code de sortie 1 si une anomalie bloquante est détectée.
  */
 
-import { one } from "../api/_lib/db.js";
+import { one } from "../server-api/_lib/db.js";
 
 const rows = [];
 function record(label, value, { ok = true, hint = "" } = {}) {

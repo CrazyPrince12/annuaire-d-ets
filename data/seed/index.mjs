@@ -14,7 +14,7 @@ import { realCompanies } from "./companies.real.mjs";
 import { demoCompanies } from "./companies.demo.mjs";
 import { reviews } from "./reviews.mjs";
 import { offers } from "./offers.mjs";
-import { buildSearchText } from "../../api/_lib/text.js";
+import { buildSearchText } from "../../server-api/_lib/text.js";
 
 /** Horaires types (fuseau Africa/Douala) — "" signifie fermé. */
 const HOURS = {

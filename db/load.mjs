@@ -9,7 +9,7 @@
  * Toutes les insertions sont idempotentes : relancer le script ne duplique rien.
  */
 import { buildDataset } from "../data/seed/index.mjs";
-import { hashPassword } from "../api/_lib/password.js";
+import { hashPassword } from "../server-api/_lib/password.js";
 
 const json = (value) => JSON.stringify(value ?? null);
 

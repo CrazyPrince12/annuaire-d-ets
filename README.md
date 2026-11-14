@@ -2,9 +2,9 @@
 
 **L'annuaire des entreprises du Cameroun.** Des fiches vérifiées (adresse, téléphone, horaires),
 des avis modérés écrits par des employés et des stagiaires, une carte, un comparateur et des
-offres d'emploi — sans framework, sans build, sans dépendance à un service de cartes payant.
+offres d'emploi — avec un serveur Express, sans compilation frontend, sans dépendance à un service de cartes payant.
 
-- **Production** : <https://conglomerat.cm> (application statique + fonctions serverless)
+- **Production** : <https://conglomerat.cm> (application Express : pages HTML + API)
 - **Base** : Neon (PostgreSQL) en production, PGlite en mémoire pour la démonstration locale
 - **Licence** : MIT
 
@@ -33,7 +33,7 @@ npm run db:check          # contrôles d'intégrité
 
 | Commande | Effet |
 | --- | --- |
-| `npm run dev` / `npm start` | Serveur local (`dev.mjs`) : applique les réécritures de `vercel.json`, sert `/api/*` et `public/`. |
+| `npm run dev` / `npm start` | Application Express (`server.js`) : sert `/api/*` et `public/` ; même routage sur Render et Vercel. |
 | `npm run check` | Vérifications statiques : syntaxe, i18n FR/EN, icônes, imports, réécritures, schéma. |
 | `npm run smoke` | Fumée DOM : initialise les 19 pages dans un DOM simulé + contrôle du chrome partagé, et échoue à la moindre exception. |
 | `npm run db:init` | Applique `db/schema.sql` sur la base cible. |
@@ -69,7 +69,7 @@ serverless — voir la note de déploiement ci-dessous.
 ## Structure
 
 ```
-api/                    Fonctions serverless (une par route)
+server-api/             Fonctions serverless (une par route)
   _lib/                 texte, validation, auth JWT, base, mailer, HTTP
   admin/                data.js (lectures) · actions.js (écritures + audit)
   companies/[slug].js   Offres, avis, carte, me-*, billing, enterprise…
@@ -81,7 +81,8 @@ public/
   assets/js/core/       config, i18n, api, ui, nav, recherche, carte, favoris…
   assets/js/pages/      Un module par page, chargé dynamiquement via body[data-page]
 scripts/                check, db-check, build-assets, gen-icons, gen-schema, vendor
-dev.mjs                 Serveur local sans dépendance, miroir de vercel.json
+server.js               Application Express exportée (Vercel) et serveur HTTP (Render)
+server-api/             Handlers API et helpers (hors du dossier spécial api de Vercel)
 ```
 
 ## API
@@ -118,30 +119,50 @@ Le bouton de chaque carte de démonstration remplit et soumet le formulaire.
 
 ## Déploiement
 
-1. Importer le dépôt dans Vercel (aucune étape de build : `vercel.json` pointe sur `public/`).
-2. Créer une base Neon et renseigner `DATABASE_URL`, `AUTH_SECRET` (obligatoire),
-   éventuellement `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `RESEND_API_KEY`.
-3. `npm run db:init` puis, si l'on veut la démo en ligne, `npm run db:seed`.
-4. Vérifier `/api/health` : `{ ok: true, mode: "neon", companies: n }`.
+### Version Node
 
-Les en-têtes de sécurité (nosniff, frame-options, referrer-policy, permissions-policy) et le
-`noindex` de `/admin` sont déclarés dans `vercel.json`.
+Utiliser **Node 22.x**, fixée dans `package.json` et `.nvmrc`, plutôt qu'une plage
+ouverte (`>=20.11`) ou Node 26. Le développement et les tests utilisent Node 22.
 
-### Pourquoi `DATABASE_URL` est indispensable sur Vercel
+### Vercel
 
-Le mode démonstration s'appuie sur PGlite, qui embarque un binaire WebAssembly de 13,5 Mo
-(`postgres.wasm` + `postgres.data`). Traçé par le bundler de Vercel, ce binaire était recopié
-dans **chacune** des 41 fonctions serverless (≈ 540 Mo au total) : le build passait, puis le
-déploiement échouait à l'étape « Deploying outputs… ».
+1. Importer le dépôt, avec la racine du dépôt comme **Root Directory**.
+2. Sélectionner le preset **Express** (également déclaré dans `vercel.json`).
+   Supprimer les anciens overrides **Output Directory = public** et les éventuelles
+   commandes personnalisées. Le script de build ne fait que vérifier le code.
+3. Configurer Node **22.x** et les variables `DATABASE_URL`, `AUTH_SECRET`, `SITE_URL`,
+   puis les variables facultatives de `.env.example`.
+4. Initialiser Neon avec `npm run db:init` ; `npm run db:seed` est facultatif.
+5. Déployer le nouveau commit (pas simplement relancer l'ancien déploiement), puis
+   vérifier `/`, `/explorer`, `/api/health` et une fiche entreprise.
 
-`api/_lib/db.js` charge donc PGlite par un spécificateur calculé, invisible du bundler : chaque
-fonction est passée de **14,5 Mo à 0,5 Mo**. En contrepartie, sans `DATABASE_URL` la base n'existe
-pas en ligne — l'API répond alors `503` avec un message explicite (« Définissez DATABASE_URL… »)
-au lieu d'une erreur 500, et `/api/health` renvoie `database: "unconfigured"`.
+Vercel détecte l'export Express de `server.js` et le transforme en une seule fonction.
+Les anciens handlers sont dans `server-api/` pour ne plus produire une fonction par
+fichier dans le dossier réservé `api/`. Les URL `/api/*` ne changent pas.
+Les fichiers de `public/` peuvent être servis directement par le CDN Vercel ; Express
+les sert également sur Render et en local. Aucun catch-all ne renvoie l'accueil à
+la place d'une API inconnue : les erreurs restent de vraies 404.
 
-Autres garde-fous de `vercel.json` : `maxDuration: 10` (limite des fonctions Node du plan Hobby ;
-une valeur supérieure fait refuser le déploiement). `npm run check` vérifie que ni PGlite ni
-`sharp` ne sont réimportés statiquement dans `api/` (contrôle « Poids des fonctions »).
+### Render
+
+Créer un **Web Service**, build `npm ci && npm run build`, démarrage `npm start`,
+Node 22.x. Le serveur écoute sur `0.0.0.0` et le port fourni par `PORT`.
+Configurer les mêmes variables de production que sur Vercel.
+
+### Base de données
+
+`DATABASE_URL` (Neon) est indispensable pour une base persistante en production.
+PGlite est réservé à la démonstration locale en mémoire et chargé dynamiquement ;
+il n'est pas embarqué par le bundler Vercel. Sans Neon, un déploiement Vercel peut
+servir les pages mais l'API de données sera dégradée. `/api/health` expose cet état.
+Les limites de débit en mémoire sont par instance, pas globales entre instances.
+
+### Lecture des anciens logs
+
+L'extrait du commit `eb45498` montre un build réussi puis « Deploying outputs… ».
+Il ne contient pas le message final d'échec ; les avertissements `engines` ne
+suffisent pas à en déterminer la cause. Les commits suivants avaient déjà retiré
+PGlite du traçage des fonctions, mais n'avaient pas unifié le serveur.
 
 ## Qualité
 
