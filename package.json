@@ -6,7 +6,7 @@
   "description": "CONGLOMERAT — annuaire de découverte des entreprises du Cameroun (HTML/CSS/JS + Neon + Vercel).",
   "license": "MIT",
   "engines": {
-    "node": "20.x"
+    "node": "26.x"
   },
   "scripts": {
     "dev": "node dev.mjs",
