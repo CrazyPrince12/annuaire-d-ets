@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Conditions d'utilisation — CONGLOMERAT</title>
+    <meta name="description" content="Les règles d'usage du site : comptes, contributions, avis, offres d'emploi et responsabilités." />
+    <link rel="canonical" href="https://conglomerat.cm/conditions" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Conditions d'utilisation — CONGLOMERAT" />
+    <meta property="og:description" content="Les règles d'usage du site : comptes, contributions, avis, offres d'emploi et responsabilités." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page">Conditions</span>
+        </nav>
+
+        <div class="section" style="padding-top: 24px">
+          <div class="prose">
+            <h1>Conditions d'utilisation</h1>
+            <p>
+              En utilisant CONGLOMERAT, vous acceptez les règles ci-dessous. Elles existent pour protéger
+              les personnes et les entreprises citées.
+            </p>
+
+            <h2>1. Objet du service</h2>
+            <p>
+              CONGLOMERAT est un annuaire d'entreprises camerounaises incluant des avis modérés et des
+              offres d'emploi. Le service est accessible gratuitement au public. Certaines fonctions
+              avancées destinées aux entreprises sont proposées en démonstration payante.
+            </p>
+
+            <h2>2. Comptes</h2>
+            <ul>
+              <li>Vous êtes responsable de la confidentialité de votre mot de passe.</li>
+              <li>Un compte par personne. Les comptes créés pour nuire ou spammer sont suspendus.</li>
+              <li>Vous pouvez supprimer votre compte à tout moment depuis vos paramètres.</li>
+            </ul>
+
+            <h2>3. Contributions</h2>
+            <ul>
+              <li>Les fiches proposées sont vérifiées avant publication.</li>
+              <li>Une contribution doit être exacte et non commerciale.</li>
+              <li>Toute contribution abusive peut entraîner la suspension du compte.</li>
+            </ul>
+
+            <h2>4. Avis</h2>
+            <p>
+              Les avis sont soumis à la <a class="link" href="/charte-des-avis">charte des avis</a>. Vous
+              garantissez être l'auteur de l'avis et avoir vécu l'expérience décrite. Les avis diffamatoires
+              engagent la responsabilité de leur auteur.
+            </p>
+
+            <h2>5. Offres d'emploi</h2>
+            <ul>
+              <li>La publication d'une offre est réservée aux entreprises revendiquées et validées.</li>
+              <li>Les offres demandant un paiement au candidat sont interdites et retirées.</li>
+              <li>La candidature se fait via le site : les coordonnées des candidats ne sont pas revendues.</li>
+            </ul>
+
+            <h2>6. Disponibilité</h2>
+            <p>
+              Le service est fourni « en l'état ». Nous visons une disponibilité continue mais nous ne
+              garantissons pas l'absence d'interruption. Les données de démonstration peuvent être
+              réinitialisées sans préavis.
+            </p>
+
+            <h2>7. Résiliation</h2>
+            <p>
+              Nous pouvons suspendre un compte qui enfreint ces conditions, après examen du dossier. Vous
+              pouvez contester cette décision en écrivant à
+              <a class="link" href="mailto:bonjour@conglomerat.cm">bonjour@conglomerat.cm</a>.
+            </p>
+
+            <h2>8. Droit applicable</h2>
+            <p>
+              Les présentes conditions sont régies par le droit camerounais. En cas de litige, une solution
+              amiable sera recherchée avant toute action judiciaire.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

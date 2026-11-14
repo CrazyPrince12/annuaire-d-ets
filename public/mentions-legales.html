@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Mentions légales — CONGLOMERAT</title>
+    <meta name="description" content="Éditeur, hébergement, propriété intellectuelle et responsabilité éditoriale du site CONGLOMERAT." />
+    <link rel="canonical" href="https://conglomerat.cm/mentions-legales" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Mentions légales — CONGLOMERAT" />
+    <meta property="og:description" content="Éditeur, hébergement, propriété intellectuelle et responsabilité éditoriale du site CONGLOMERAT." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page">Mentions légales</span>
+        </nav>
+
+        <div class="section" style="padding-top: 24px">
+          <div class="prose">
+            <h1>Mentions légales</h1>
+
+            <h2>Éditeur</h2>
+            <p>
+              CONGLOMERAT — annuaire des entreprises camerounaises.<br />
+              Projet indépendant développé à Yaoundé, Cameroun.<br />
+              Contact : <a class="link" href="mailto:bonjour@conglomerat.cm">bonjour@conglomerat.cm</a>
+            </p>
+            <p>
+              Directeur de la publication : l'équipe CONGLOMERAT. Les informations d'immatriculation
+              complètes sont communiquées sur demande écrite.
+            </p>
+
+            <h2>Hébergement</h2>
+            <p>
+              Le site est hébergé sur une plateforme d'hébergement applicatif internationale. Les fonctions
+              serveur sont exécutées en périphérie de réseau et la base de données est hébergée dans une
+              région européenne.
+            </p>
+
+            <h2>Propriété intellectuelle</h2>
+            <p>
+              Le code source du site est publié sous licence MIT. Les textes éditoriaux, la charte graphique
+              et la marque CONGLOMERAT restent la propriété de leurs auteurs. Les contenus fournis par les
+              entreprises (descriptions, logos) restent la propriété de celles-ci et sont affichés avec leur
+              accord ou à titre informatif.
+            </p>
+
+            <h2>Responsabilité</h2>
+            <p>
+              Les fiches sont constituées à partir d'informations publiques et de contributions vérifiées.
+              Malgré nos contrôles, une adresse ou un numéro peut changer sans que nous en soyons informés.
+              Nous vous invitons à signaler toute erreur depuis la fiche concernée.
+            </p>
+            <p>
+              Les avis publiés sont ceux de leurs auteurs. Ils ne représentent pas la position de
+              l'éditeur du site.
+            </p>
+
+            <h2>Signalement</h2>
+            <p>
+              Pour signaler un contenu illicite ou une atteinte à vos droits :
+              <a class="link" href="/contact">formulaire de contact</a>, en précisant l'URL et le motif.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,166 @@
+/* ============================================================================
+   CONGLOMERAT — jetons de design
+   Thème sombre par défaut, thème clair complet, thème « auto » piloté en JS
+   (html[data-theme="light"] / [data-theme="dark"]).
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* --- Fonds et surfaces --- */
+  --bg: #0a0e0c;
+  --bg-elevated: #0d1310;
+  --surface-1: #101613;
+  --surface-2: #161e1a;
+  --surface-3: #1d2722;
+  --surface-4: #24312b;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  /* --- Textes --- */
+  --text: #f1f5f3;
+  --text-muted: #9aa9a2;
+  --text-faint: #6f7d77;
+
+  /* --- Couleurs d'action --- */
+  --primary: #22c07a;
+  --primary-hover: #33d38b;
+  --primary-pressed: #17a266;
+  --primary-soft: rgba(34, 192, 122, 0.14);
+  --primary-line: rgba(34, 192, 122, 0.42);
+  --primary-contrast: #04140c;
+  --accent: #ffc83d;
+  --accent-soft: rgba(255, 200, 61, 0.14);
+  --danger: #f2574f;
+  --danger-soft: rgba(242, 87, 79, 0.14);
+  --info: #52a9ff;
+  --info-soft: rgba(82, 169, 255, 0.14);
+
+  /* --- Verre --- */
+  --glass-bg: rgba(16, 22, 19, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: 18px;
+
+  /* --- Ombres --- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 0 1px rgba(34, 192, 122, 0.25), 0 8px 32px rgba(34, 192, 122, 0.18);
+  --ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+
+  /* --- Typographie --- */
+  --font-display: "Manrope", "Manrope Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", "Inter Fallback", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1rem;
+  --text-lg: 1.0625rem;
+
+  --h1: clamp(2rem, 1.2rem + 3.6vw, 4rem);
+  --h2: clamp(1.5rem, 1.1rem + 1.8vw, 2.375rem);
+  --h3: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  --h4: clamp(1rem, 0.95rem + 0.3vw, 1.1875rem);
+
+  /* --- Rythme --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-card: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --container: 1440px;
+  --page-gutter: 16px;
+  --header-h: 56px;
+  --bottom-nav-h: 64px;
+
+  /* --- Mouvement --- */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.3, 0, 0, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 480ms;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 24px;
+    --header-h: 72px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --page-gutter: 32px;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Thème clair — dessiné séparément, pas une inversion automatique
+   -------------------------------------------------------------------------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f8f7;
+  --bg-elevated: #ffffff;
+  --surface-1: #ffffff;
+  --surface-2: #eef2f0;
+  --surface-3: #e3e9e6;
+  --surface-4: #d8e0dc;
+  --border: rgba(10, 20, 15, 0.1);
+  --border-strong: rgba(10, 20, 15, 0.18);
+
+  --text: #0b1210;
+  --text-muted: #4b5b54;
+  --text-faint: #6b7a73;
+
+  --primary: #0b8f55;
+  --primary-hover: #0a7d4a;
+  --primary-pressed: #08663d;
+  --primary-soft: rgba(11, 143, 85, 0.1);
+  --primary-line: rgba(11, 143, 85, 0.35);
+  --primary-contrast: #ffffff;
+  --accent: #b7860b;
+  --accent-soft: rgba(183, 134, 11, 0.12);
+  --danger: #c8342c;
+  --danger-soft: rgba(200, 52, 44, 0.1);
+  --info: #1f6fc2;
+  --info-soft: rgba(31, 111, 194, 0.1);
+
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(10, 20, 15, 0.08);
+
+  --shadow-sm: 0 1px 2px rgba(12, 30, 22, 0.06);
+  --shadow-md: 0 10px 30px rgba(12, 30, 22, 0.08), 0 1px 2px rgba(12, 30, 22, 0.05);
+  --shadow-lg: 0 30px 70px rgba(12, 30, 22, 0.12), 0 2px 8px rgba(12, 30, 22, 0.06);
+  --shadow-glow: 0 0 0 1px rgba(11, 143, 85, 0.18), 0 12px 30px rgba(11, 143, 85, 0.12);
+}
+
+/* Mode économie de données : on coupe les effets coûteux */
+:root[data-saver="true"] {
+  --glass-blur: 0px;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-glow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 1ms;
+    --dur-2: 1ms;
+    --dur-3: 1ms;
+    --dur-4: 1ms;
+  }
+}

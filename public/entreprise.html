@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Fiche entreprise — CONGLOMERAT</title>
+    <meta
+      name="description"
+      content="Coordonnées vérifiées, horaires, avis modérés, itinéraire et offres d'emploi de cette entreprise camerounaise."
+    />
+    <link rel="canonical" href="https://conglomerat.cm/entreprises/" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="business.business" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="company" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div id="company-root">
+        <div class="container">
+          <div id="company-head">
+            <div class="company-cover skeleton" style="height: 180px"></div>
+            <div class="company-identity">
+              <div class="skeleton" style="width: 72px; height: 72px; border-radius: 18px"></div>
+              <div class="company-headline">
+                <div class="skeleton skeleton-line w60" style="height: 28px"></div>
+                <div class="skeleton skeleton-line w40"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="container">
+          <div class="sticky-tabs" id="company-tabs"></div>
+        </div>
+
+        <div class="container">
+          <div class="company-layout">
+            <div class="stack" style="gap: 32px">
+              <section id="about" aria-labelledby="about-title">
+                <div id="company-about"></div>
+              </section>
+
+              <section id="reviews" aria-labelledby="reviews-title">
+                <div id="company-reviews"></div>
+              </section>
+
+              <section id="offers">
+                <div id="company-offers"></div>
+              </section>
+
+              <section id="info">
+                <div id="company-facts"></div>
+              </section>
+            </div>
+
+            <aside class="company-side">
+              <div class="stack" style="gap: 16px">
+                <div class="card contact-card" id="company-contact"></div>
+                <div class="card" id="company-hours-wrap">
+                  <h2 style="font-size: var(--text-md); margin-bottom: 12px" data-i18n="common.hours">Horaires</h2>
+                  <div id="company-hours"></div>
+                </div>
+                <div class="card" id="company-map-wrap">
+                  <h2 style="font-size: var(--text-md); margin-bottom: 12px" data-i18n="company.mapTitle">
+                    Où nous trouver
+                  </h2>
+                  <div id="company-map" class="company-mini-map" role="img"
+                       aria-label="Carte de localisation"></div>
+                </div>
+                <div class="card stack" style="gap: 10px">
+                  <button type="button" class="btn btn-secondary block" data-compare="${""}" id="compare-button"
+                          aria-pressed="false">
+                    <span data-icon="scale" data-icon-size="17" aria-hidden="true"></span>
+                    <span data-i18n="company.compareAdd">Comparer</span>
+                  </button>
+                  <button type="button" class="btn btn-ghost block" data-open-claim>
+                    <span data-icon="badgeCheck" data-icon-size="17" aria-hidden="true"></span>
+                    <span data-i18n="company.claim">Revendiquer cette fiche</span>
+                  </button>
+                  <a class="link small" href="/premium" data-i18n="business.upgrade">Passer en premium</a>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <section id="company-similar" class="section" hidden></section>
+        </div>
+      </div>
+
+      <div class="action-bar" id="company-action-bar"></div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+
+    <dialog id="review-dialog" aria-labelledby="review-dialog-title">
+      <div class="sheet">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="review-dialog-title" data-i18n="review.title">Laisser un avis</h2>
+          <button type="button" class="icon-btn sm" data-close-dialog aria-label="Fermer">
+            <span data-icon="x" data-icon-size="18"></span>
+          </button>
+        </div>
+        <div class="sheet-body" data-dialog-body></div>
+      </div>
+    </dialog>
+
+    <dialog id="report-dialog" aria-labelledby="report-dialog-title">
+      <div class="sheet">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="report-dialog-title" data-i18n="review.reportTitle">Signaler</h2>
+          <button type="button" class="icon-btn sm" data-close-dialog aria-label="Fermer">
+            <span data-icon="x" data-icon-size="18"></span>
+          </button>
+        </div>
+        <div class="sheet-body" data-dialog-body></div>
+      </div>
+    </dialog>
+
+    <dialog id="claim-dialog" aria-labelledby="claim-dialog-title">
+      <div class="sheet">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <h2 id="claim-dialog-title" data-i18n="company.claim">Revendiquer cette fiche</h2>
+          <button type="button" class="icon-btn sm" data-close-dialog aria-label="Fermer">
+            <span data-icon="x" data-icon-size="18"></span>
+          </button>
+        </div>
+        <div class="sheet-body" data-dialog-body></div>
+      </div>
+    </dialog>
+
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

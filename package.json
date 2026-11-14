@@ -1,0 +1,38 @@
+{
+  "name": "conglomerat",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CONGLOMERAT — annuaire de découverte des entreprises du Cameroun (HTML/CSS/JS + Neon + Vercel).",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "dev": "node dev.mjs",
+    "start": "node dev.mjs",
+    "build": "node scripts/check.mjs",
+    "db:init": "node scripts/db-init.mjs",
+    "db:seed": "node scripts/db-init.mjs --seed-only",
+    "db:check": "node scripts/db-check.mjs",
+    "assets": "node scripts/build-assets.mjs",
+    "check": "node scripts/check.mjs",
+    "vendor": "node scripts/vendor.mjs",
+    "icons": "node scripts/gen-icons.mjs",
+    "db:schema": "node scripts/gen-schema.mjs",
+    "smoke": "node scripts/smoke-dom.mjs"
+  },
+  "dependencies": {
+    "@electric-sql/pglite": "^0.2.17",
+    "@neondatabase/serverless": "^0.10.4",
+    "maplibre-gl": "4.7.1"
+  },
+  "devDependencies": {
+    "@fontsource-variable/inter": "^5.1.1",
+    "@fontsource-variable/manrope": "^5.1.1",
+    "linkedom": "^0.18.15",
+    "lucide-static": "^1.73.0",
+    "opentype.js": "^1.3.4",
+    "sharp": "^0.33.5"
+  }
+}

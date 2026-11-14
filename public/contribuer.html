@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Ajouter une entreprise — CONGLOMERAT</title>
+    <meta name="description" content="Proposez une nouvelle entreprise camerounaise : adresse, téléphone, secteur. Notre équipe vérifie chaque fiche avant publication." />
+    <link rel="canonical" href="https://conglomerat.cm/contribuer" />
+    
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Ajouter une entreprise — CONGLOMERAT" />
+    <meta property="og:description" content="Proposez une nouvelle entreprise camerounaise : adresse, téléphone, secteur. Notre équipe vérifie chaque fiche avant publication." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="contribute" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/" data-i18n="nav.home">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page" data-i18n="nav.contribute">Contribuer</span>
+        </nav>
+
+        <div class="section-head" style="margin-top: 20px">
+          <div>
+            <h1 data-i18n="contribute.title">Ajouter une entreprise</h1>
+            <p data-i18n="contribute.subtitle">
+              Trois étapes, deux minutes. Nous vérifions chaque fiche avant publication (objectif : 48 heures).
+            </p>
+          </div>
+        </div>
+
+        <div class="contribute-layout">
+          <div>
+            <div class="stepper" aria-hidden="true">
+              <span class="step"></span><span class="step"></span><span class="step"></span>
+            </div>
+            <p class="faint small" id="step-label" style="margin-bottom: 16px">Étape 1 sur 3</p>
+
+            <form id="contribute-form" class="stack" style="gap: 18px" novalidate>
+              <section data-step-panel="1">
+                <h2 style="font-size: var(--h3); margin-bottom: 12px" data-i18n="contribute.step1">
+                  L'entreprise
+                </h2>
+                <div class="stack" style="gap: 14px">
+                  <div class="field">
+                    <label for="contrib-name" data-i18n="contribute.name">Nom de l'entreprise</label>
+                    <input class="input" id="contrib-name" name="name" required maxlength="120"
+                           placeholder="Ex. Cabinet Ekombo &amp; Associés" />
+                  </div>
+                  <div class="form-grid two">
+                    <div class="field">
+                      <label for="contrib-sector" data-i18n="contribute.sector">Secteur</label>
+                      <select class="select" id="contrib-sector" name="sector" required></select>
+                    </div>
+                    <div class="field">
+                      <label for="contrib-city" data-i18n="contribute.city">Ville</label>
+                      <select class="select" id="contrib-city" name="city" required></select>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="contrib-neighborhood" data-i18n="contribute.neighborhood">Quartier</label>
+                    <input class="input" id="contrib-neighborhood" name="neighborhood" maxlength="80"
+                           placeholder="Bastos, Bonapriso, Akwa…" />
+                  </div>
+                </div>
+              </section>
+
+              <section data-step-panel="2" hidden>
+                <h2 style="font-size: var(--h3); margin-bottom: 12px" data-i18n="contribute.step2">
+                  Coordonnées
+                </h2>
+                <div class="stack" style="gap: 14px">
+                  <div class="field">
+                    <label for="contrib-phone" data-i18n="common.phone">Téléphone</label>
+                    <input class="input" id="contrib-phone" name="phone" type="tel" inputmode="tel"
+                           placeholder="6 90 00 00 00" />
+                    <span class="hint" data-i18n="contribute.phoneHint">
+                      Format camerounais : 6 XX XX XX XX, avec ou sans +237.
+                    </span>
+                  </div>
+                  <div class="form-grid two">
+                    <div class="field">
+                      <label for="contrib-whatsapp" data-i18n="common.whatsapp">WhatsApp</label>
+                      <input class="input" id="contrib-whatsapp" name="whatsapp" type="tel" inputmode="tel" />
+                    </div>
+                    <div class="field">
+                      <label for="contrib-email" data-i18n="auth.email">E-mail</label>
+                      <input class="input" id="contrib-email" name="email" type="email" />
+                    </div>
+                  </div>
+                  <div class="form-grid two">
+                    <div class="field">
+                      <label for="contrib-website" data-i18n="common.website">Site web</label>
+                      <input class="input" id="contrib-website" name="website" type="url" placeholder="https://" />
+                    </div>
+                    <div class="field">
+                      <label for="contrib-address" data-i18n="common.address">Adresse</label>
+                      <input class="input" id="contrib-address" name="address" maxlength="200" />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="contrib-landmark" data-i18n="contribute.landmark">Point de repère</label>
+                    <input class="input" id="contrib-landmark" name="landmark" maxlength="160"
+                           placeholder="Face à la pharmacie du carrefour…" />
+                  </div>
+                  <div class="field">
+                    <label for="contrib-description" data-i18n="contribute.description">Description</label>
+                    <textarea class="textarea" id="contrib-description" name="description" rows="4" maxlength="1200"
+                              placeholder="Ce que fait l'entreprise, ses services, ses horaires…"></textarea>
+                  </div>
+                </div>
+              </section>
+
+              <section data-step-panel="3" hidden>
+                <h2 style="font-size: var(--h3); margin-bottom: 12px" data-i18n="contribute.step3">
+                  Vous et vos précisions
+                </h2>
+                <div class="stack" style="gap: 14px">
+                  <div class="form-grid two">
+                    <div class="field">
+                      <label for="contrib-submitter" data-i18n="contribute.submitterName">Votre nom (facultatif)</label>
+                      <input class="input" id="contrib-submitter" name="submitterName" maxlength="80" />
+                    </div>
+                    <div class="field">
+                      <label for="contrib-submitter-email" data-i18n="contribute.submitterEmail">Votre e-mail</label>
+                      <input class="input" id="contrib-submitter-email" name="submitterEmail" type="email" required />
+                      <span class="hint" data-i18n="contribute.submitterHint">
+                        Pour vous prévenir de la publication de la fiche.
+                      </span>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label for="contrib-notes" data-i18n="contribute.notes">Précisions pour l'équipe</label>
+                    <textarea class="textarea" id="contrib-notes" name="notes" rows="3" maxlength="600"
+                              placeholder="Source de l'information, lien Google Maps, horaires…"></textarea>
+                  </div>
+                  <div class="banner warning">
+                    <span data-icon="info" data-icon-size="16"></span>
+                    <span data-i18n="contribute.rules">
+                      Pas de fausse fiche, pas de numéro personnel. Les contributions abusives sont supprimées.
+                    </span>
+                  </div>
+                </div>
+              </section>
+
+              <div class="row" style="gap: 8px; justify-content: flex-end">
+                <button type="button" class="btn btn-ghost" id="wizard-back" hidden data-i18n="common.back">
+                  Retour
+                </button>
+                <button type="button" class="btn btn-primary" id="wizard-next" data-i18n="common.next">
+                  Continuer
+                </button>
+              </div>
+            </form>
+
+            <div class="empty-state" id="contribute-success" hidden>
+              <span data-icon="checkCheck" data-icon-size="34" aria-hidden="true"></span>
+              <h2 data-i18n="contribute.successTitle">Merci, c'est envoyé.</h2>
+              <p data-i18n="contribute.success">
+                Une personne de l'équipe vérifie la proposition avant publication (objectif : 48 heures).
+              </p>
+              <div class="row" style="gap: 8px; justify-content: center">
+                <a class="btn btn-secondary" href="/" data-i18n="nav.home">Accueil</a>
+                <button type="button" class="btn btn-ghost" id="contribute-again"
+                        data-i18n="contribute.again">Proposer une autre fiche</button>
+              </div>
+            </div>
+          </div>
+
+          <aside class="stack" style="gap: 14px">
+            <div class="card">
+              <h2 style="font-size: var(--text-md)" data-i18n="contribute.whyTitle">Pourquoi contribuer ?</h2>
+              <ul class="check-list">
+                <li data-i18n="contribute.why1">Vos voisins, vos clients et les chercheurs d'emploi gagnent du temps.</li>
+                <li data-i18n="contribute.why2">Les fiches vérifiées remontent dans les résultats.</li>
+                <li data-i18n="contribute.why3">Le numéro affiché est testé par notre équipe.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h2 style="font-size: var(--text-md)" data-i18n="contribute.helpTitle">Besoin d'aide ?</h2>
+              <p class="small muted" data-i18n="contribute.helpText">
+                Signalez une erreur existante depuis sa fiche, ou écrivez-nous.
+              </p>
+              <a class="btn btn-secondary sm" href="/contact" data-i18n="nav.contact">Contact</a>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

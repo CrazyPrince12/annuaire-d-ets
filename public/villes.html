@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Villes — entreprises par ville au Cameroun | CONGLOMERAT</title>
+    <meta name="description" content="Douala, Yaoundé, Bafoussam, Garoua… Parcourez les entreprises camerounaises par ville et par quartier, avec leurs contacts et leurs horaires vérifiés." />
+    <link rel="canonical" href="https://conglomerat.cm/villes" />
+    
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Villes — entreprises par ville au Cameroun | CONGLOMERAT" />
+    <meta property="og:description" content="Douala, Yaoundé, Bafoussam, Garoua… Parcourez les entreprises camerounaises par ville et par quartier, avec leurs contacts et leurs horaires vérifiés." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="cities" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/" data-i18n="nav.home">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page" data-i18n="nav.cities">Villes</span>
+        </nav>
+
+        <div class="section-head" style="margin-top: 20px">
+          <div>
+            <h1 data-i18n="cities.title">Les villes de l'annuaire</h1>
+            <p data-i18n="cities.subtitle">Choisissez une ville pour voir les entreprises, les quartiers et les offres locales.</p>
+          </div>
+          <a class="btn btn-secondary sm" href="/carte">
+            <span data-icon="map" data-icon-size="16"></span>
+            <span data-i18n="nav.map">Carte</span>
+          </a>
+        </div>
+
+        <div class="city-grid" id="cities-grid"></div>
+
+        <section class="section">
+          <div class="section-head">
+            <h2 data-i18n="cities.quartersTitle">Quartiers couverts</h2>
+          </div>
+          <div class="grid three" id="cities-quarters"></div>
+        </section>
+
+        <section class="section">
+          <div class="card pad-lg home-contribute">
+            <div>
+              <h2 style="font-size: var(--h3)" data-i18n="common.missingCompany">Une entreprise manque ?</h2>
+              <p class="muted" data-i18n="cities.contributeText">
+                Proposez une fiche : nous vérifions l'adresse et le numéro avant publication.
+              </p>
+            </div>
+            <a class="btn btn-primary" href="/contribuer">
+              <span data-icon="plus" data-icon-size="17"></span>
+              <span data-i18n="nav.contribute">Contribuer</span>
+            </a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

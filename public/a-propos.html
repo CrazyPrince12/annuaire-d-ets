@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>À propos — CONGLOMERAT</title>
+    <meta name="description" content="Pourquoi CONGLOMERAT existe : un annuaire des entreprises camerounaises tenu à jour, gratuit pour le public, avec des fiches vérifiées et des avis modérés." />
+    <link rel="canonical" href="https://conglomerat.cm/a-propos" />
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="À propos — CONGLOMERAT" />
+    <meta property="og:description" content="Pourquoi CONGLOMERAT existe : un annuaire des entreprises camerounaises tenu à jour, gratuit pour le public, avec des fiches vérifiées et des avis modérés." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page">À propos</span>
+        </nav>
+
+        <div class="section" style="padding-top: 24px">
+          <div class="prose">
+            <h1>Un annuaire utile, pas un catalogue</h1>
+            <p>
+              Chercher une entreprise au Cameroun commence souvent par une question simple : « qui répare
+              ça, près d'ici, aujourd'hui ? ». Les réponses existent, mais elles sont éparpillées entre des
+              captures d'écran, des pages Facebook abandonnées et des numéros qui ne répondent plus.
+            </p>
+            <p>
+              CONGLOMERAT rassemble ces informations au même endroit : raison sociale, secteur, quartier,
+              téléphone, WhatsApp, horaires, et — quand ils existent — des avis écrits par des employés,
+              des anciens salariés et des stagiaires.
+            </p>
+
+            <h2>Ce que nous faisons</h2>
+            <ul>
+              <li>Nous vérifions l'adresse et le téléphone des fiches avant publication.</li>
+              <li>Nous relisons chaque avis avant de le publier, selon une charte publique.</li>
+              <li>Nous laissons les entreprises revendiquer leur fiche et corriger leurs informations.</li>
+              <li>Nous publions les offres d'emploi et de stage des entreprises référencées.</li>
+            </ul>
+
+            <h2>Ce que nous ne faisons pas</h2>
+            <ul>
+              <li>Nous ne vendons pas de classement : la note vient des avis, pas d'un contrat.</li>
+              <li>Nous ne publions pas d'avis non modéré, ni anonyme au sens « invérifiable ».</li>
+              <li>Nous ne demandons jamais d'argent à un candidat pour un recrutement.</li>
+            </ul>
+
+            <h2>Le projet</h2>
+            <p>
+              CONGLOMERAT est un projet indépendant, développé à Yaoundé. Le code est ouvert et publié sous
+              licence MIT ; les données de démonstration sont clairement signalées dans l'interface.
+            </p>
+            <p>
+              Une remarque, une correction, une envie de contribuer ?
+              <a class="link" href="/contact">Écrivez-nous</a> ou
+              <a class="link" href="/contribuer">proposez une fiche</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>

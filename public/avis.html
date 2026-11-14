@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="fr" data-theme="dark" data-lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Avis sur les entreprises au Cameroun | CONGLOMERAT</title>
+    <meta name="description" content="Avis modérés d'employés, anciens salariés et stagiaires sur les entreprises camerounaises : ambiance, management, salaires et recrutement." />
+    <link rel="canonical" href="https://conglomerat.cm/avis" />
+    
+    <meta name="theme-color" content="#0B1310" />
+    <meta name="color-scheme" content="dark light" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CONGLOMERAT" />
+    <meta property="og:title" content="Avis sur les entreprises au Cameroun | CONGLOMERAT" />
+    <meta property="og:description" content="Avis modérés d'employés, anciens salariés et stagiaires sur les entreprises camerounaises : ambiance, management, salaires et recrutement." />
+    <meta property="og:image" content="https://conglomerat.cm/assets/img/og-default.jpg" />
+    <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/assets/css/tokens.css" />
+    <link rel="stylesheet" href="/assets/css/base.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/pages.css" />
+    <script>
+      (function () {
+        try {
+          var choice = localStorage.getItem("cg.theme") || "dark";
+          var light = window.matchMedia("(prefers-color-scheme: light)").matches;
+          var resolved = choice === "auto" ? (light ? "light" : "dark") : choice;
+          var root = document.documentElement;
+          root.dataset.theme = resolved;
+          root.dataset.themeChoice = choice;
+          root.style.colorScheme = resolved;
+          if (localStorage.getItem("cg.saver") === "true") root.dataset.saver = "true";
+          var lang = localStorage.getItem("cg.lang");
+          if (lang === "en" || lang === "fr") root.lang = lang;
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+  </head>
+
+  <body class="page" data-page="reviews" data-demo="true">
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Aller au contenu</a>
+    <header class="site-header" id="site-header"></header>
+
+    <main id="main" class="page-main" tabindex="-1">
+      <div class="container" id="reviews-root">
+        <nav class="breadcrumb" style="padding-top: 16px" aria-label="Fil d'Ariane">
+          <a href="/" data-i18n="nav.home">Accueil</a>
+          <span data-icon="chevronRight" data-icon-size="14" aria-hidden="true"></span>
+          <span aria-current="page" data-i18n="nav.reviews">Avis</span>
+        </nav>
+
+        <div class="section-head" style="margin-top: 20px">
+          <div>
+            <h1 data-i18n="reviews.title">Avis et classements</h1>
+            <p data-i18n="reviews.subtitle">
+              Ce que disent les employés et stagiaires, entreprise par entreprise. Chaque avis est relu avant publication.
+            </p>
+          </div>
+          <a class="btn btn-primary sm" href="/explorer">
+            <span data-icon="search" data-icon-size="16"></span>
+            <span data-i18n="explore.title">Trouver une entreprise</span>
+          </a>
+        </div>
+
+        <div class="banner warning">
+          <span data-icon="info" data-icon-size="16"></span>
+          <span data-i18n="reviews.charterNotice">
+            Les avis sont anonymes et vérifiés par notre équipe. La charte des avis s'applique à tous.
+          </span>
+          <a class="link" href="/charte-des-avis" data-i18n="reviews.charter">Lire la charte</a>
+        </div>
+
+        <section class="section" style="padding-top: 0">
+          <h2 style="font-size: var(--h3); margin-bottom: 14px" data-i18n="reviews.bySector">Meilleures notes par secteur</h2>
+          <div class="grid two" id="reviews-by-sector"></div>
+        </section>
+
+        <section class="section" id="reviews-recent-section">
+          <div class="row-between" style="margin-bottom: 14px">
+            <h2 style="font-size: var(--h3)" data-i18n="reviews.recent">Avis récents</h2>
+            <a class="link small" href="/contribuer" data-i18n="reviews.write">Écrire un avis</a>
+          </div>
+          <div class="stack" id="reviews-recent" style="gap: 12px"></div>
+        </section>
+
+        <section class="section" id="reviews-internships-section">
+          <h2 style="font-size: var(--h3); margin-bottom: 14px" data-i18n="reviews.internships">
+            Les meilleures entreprises pour un stage
+          </h2>
+          <div class="grid three" id="reviews-internships"></div>
+        </section>
+
+        <section class="section" id="reviews-atmosphere-section">
+          <h2 style="font-size: var(--h3); margin-bottom: 14px" data-i18n="reviews.atmosphere">
+            Ambiance de travail la mieux notée
+          </h2>
+          <div class="grid three" id="reviews-atmosphere"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer" id="site-footer"></footer>
+    <script type="module" src="/assets/js/core/app.js"></script>
+  </body>
+</html>
