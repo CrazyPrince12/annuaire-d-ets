@@ -45,47 +45,48 @@ async function dashboard(user) {
                WHERE o.company_id = c.id AND o.status = 'published') AS offers_published,
             (SELECT COUNT(*)::int FROM reviews r
                WHERE r.company_id = c.id AND r.status = 'published') AS reviews_published,
-            (SELECT COUNT(*)::int FROM company_events e
-               WHERE e.company_id = c.id AND e.kind = 'view' AND e.created_at > NOW() - INTERVAL '30 days') AS views_30d,
-            (SELECT COUNT(*)::int FROM company_events e
-               WHERE e.company_id = c.id AND e.kind = 'phone_click') AS phone_clicks,
-            (SELECT COUNT(*)::int FROM company_events e
-               WHERE e.company_id = c.id AND e.kind = 'direction_click') AS direction_clicks
+            metrics.views_30d, metrics.phone_clicks, metrics.direction_clicks
      FROM company_members m
      JOIN companies c ON c.id = m.company_id
      LEFT JOIN cities ci ON ci.id = c.city_id
      LEFT JOIN company_sectors cs ON cs.company_id = c.id AND cs.is_primary = TRUE
      LEFT JOIN sectors s ON s.id = cs.sector_id
+     CROSS JOIN LATERAL (
+       SELECT (COUNT(*) FILTER (WHERE e.kind = 'view'))::int AS views_30d,
+              (COUNT(*) FILTER (WHERE e.kind = 'phone_click'))::int AS phone_clicks,
+              (COUNT(*) FILTER (WHERE e.kind = 'direction_click'))::int AS direction_clicks
+       FROM company_events e
+       WHERE e.company_id = c.id AND e.kind IN ('view', 'phone_click', 'direction_click')
+         AND e.created_at > NOW() - INTERVAL '30 days'
+     ) metrics
      WHERE m.user_id = $1 AND c.deleted_at IS NULL
      ORDER BY c.name`,
     [user.id]
   );
 
   const companyIds = companies.map((row) => row.id);
-  const offers = companyIds.length
-    ? await query(
-        `SELECT o.id, o.slug, o.title, o.contract_type, o.status, o.published_at, o.deadline_at,
-                c.slug AS company_slug, c.name AS company_name,
-                (SELECT COUNT(*)::int FROM applications a WHERE a.job_offer_id = o.id) AS applications
-         FROM job_offers o JOIN companies c ON c.id = o.company_id
-         WHERE o.company_id = ANY($1::uuid[])
-         ORDER BY o.published_at DESC LIMIT 60`,
-        [companyIds]
-      )
-    : [];
-
-  const claims = await query(
-    `SELECT cr.id, cr.status, cr.created_at, cr.work_email, c.name AS company_name, c.slug AS company_slug
-     FROM claim_requests cr JOIN companies c ON c.id = cr.company_id
-     WHERE cr.user_id = $1 ORDER BY cr.created_at DESC LIMIT 20`,
-    [user.id]
-  );
-
-  const payments = await query(
-    `SELECT id, provider_ref, amount_xaf, channel, status, created_at
-     FROM payments WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10`,
-    [user.id]
-  );
+  const [offers, claims, payments] = await Promise.all([
+    companyIds.length ? query(
+      `SELECT o.id, o.slug, o.title, o.contract_type, o.status, o.published_at, o.deadline_at,
+              c.slug AS company_slug, c.name AS company_name,
+              (SELECT COUNT(*)::int FROM applications a WHERE a.job_offer_id = o.id) AS applications
+       FROM job_offers o JOIN companies c ON c.id = o.company_id
+       WHERE o.company_id = ANY($1::uuid[])
+       ORDER BY o.published_at DESC LIMIT 60`,
+      [companyIds]
+    ) : [],
+    query(
+      `SELECT cr.id, cr.status, cr.created_at, cr.work_email, c.name AS company_name, c.slug AS company_slug
+       FROM claim_requests cr JOIN companies c ON c.id = cr.company_id
+       WHERE cr.user_id = $1 ORDER BY cr.created_at DESC LIMIT 20`,
+      [user.id]
+    ),
+    query(
+      `SELECT id, provider_ref, amount_xaf, channel, status, created_at
+       FROM payments WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10`,
+      [user.id]
+    ),
+  ]);
 
   return {
     companies: companies.map((row) => ({

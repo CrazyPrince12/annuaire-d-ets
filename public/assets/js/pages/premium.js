@@ -4,6 +4,7 @@
  */
 
 import { get, post } from "../core/api.js";
+import { loadGsap } from "../core/motion-assets.js";
 import { t, formatCurrency, formatDate } from "../core/i18n.js";
 import { icon } from "../core/icons.js";
 import { toast } from "../core/toast.js";
@@ -11,6 +12,35 @@ import { $, esc, setLoading, emptyState, errorMessage } from "../core/ui.js";
 
 const PIN_HINT = "123456";
 let billing = null;
+
+function wireSeal() {
+  const cta = $(".cta-seal");
+  const ring = cta?.querySelector(".seal-ring");
+  if (!ring) return;
+  const motion = window.matchMedia?.("(prefers-reduced-motion: no-preference)");
+  const canAnimate = () => motion?.matches && document.documentElement.dataset.saver !== "true" && !navigator.connection?.saveData;
+  let tween;
+  const stop = () => { tween?.revert(); tween = null; };
+  const spin = async () => {
+    if (!canAnimate()) return;
+    const gsap = await loadGsap().catch(() => null);
+    if (!gsap || !canAnimate() || !ring.isConnected || !cta.matches(":hover, :focus-visible")) return;
+    stop();
+    tween = gsap.to(ring, { rotation: 360, transformOrigin: "50% 50%", duration: 1.1, ease: "power2.out" });
+  };
+  cta.addEventListener("pointerenter", spin);
+  cta.addEventListener("focus", spin);
+  motion?.addEventListener?.("change", stop);
+  window.addEventListener("cg:saver", stop);
+}
+
+function premiumSeal() {
+  return `<span class="seal-mark" aria-hidden="true">
+    <svg class="seal-ring" viewBox="0 0 60 60" focusable="false">
+      <path id="premium-ring-path" d="M30 30m-21 0a21 21 0 1 1 42 0a21 21 0 1 1-42 0" fill="none"/>
+      <text textLength="128" lengthAdjust="spacing"><textPath href="#premium-ring-path">PREMIUM · CONGLOMERAT ·</textPath></text>
+    </svg>${icon("sparkles", { size: 16 })}</span>`;
+}
 
 function planCard(plan, featured) {
   return `
@@ -21,8 +51,8 @@ function planCard(plan, featured) {
       <ul>
         ${(plan.features || []).map((feature) => `<li>${icon("check", { size: 16 })} ${esc(feature)}</li>`).join("")}
       </ul>
-      <button type="button" class="btn ${featured ? "btn-primary" : "btn-secondary"} block"
-              data-plan="${esc(plan.slug)}">${t("premium.cta")}</button>
+      <button type="button" class="btn ${featured ? "btn-primary cta-seal" : "btn-secondary cta-morph"} block"
+              data-plan="${esc(plan.slug)}">${featured ? premiumSeal() : ""}<span>${t("premium.cta")}</span></button>
     </article>`;
 }
 
@@ -172,6 +202,7 @@ export async function init({ user } = {}) {
   }
 
   renderPlans();
+  wireSeal();
   renderHistory();
 
   const subscription = billing.subscription;

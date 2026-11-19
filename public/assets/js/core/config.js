@@ -75,7 +75,7 @@ export const UI = {
 /** Drapeaux de fonctionnalités (désactiver une brique sans toucher au code). */
 export const FEATURES = {
   maps: true,
-  three: false, // décor WebGL optionnel, désactivé par défaut
+  three: true, // maquette WebGL chargée uniquement sur demande
   serviceWorker: true,
   analytics: false, // aucun traceur tiers par défaut
   paymentsDemo: true,

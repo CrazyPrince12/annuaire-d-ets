@@ -9,6 +9,7 @@ import { t, formatNumber } from "../core/i18n.js";
 import { icon } from "../core/icons.js";
 import { $, $$, esc, companyCard, offerCard, countUp, revealOnScroll, errorState, errorMessage } from "../core/ui.js";
 import { toast } from "../core/toast.js";
+import { wireHomeEnhancements } from "./home-enhancements.js";
 
 const SECTOR_ICONS = {
   informatique: "cpu",
@@ -38,11 +39,11 @@ function sectorIcon(sector) {
   return found ? SECTOR_ICONS[found] : "building2";
 }
 
-function renderStats(counts) {
+function renderStats(counts, cities) {
   const map = [
     ["stat-companies", counts.companies],
     ["stat-reviews", counts.reviews],
-    ["stat-cities", 3],
+    ["stat-cities", cities?.filter((city) => city.companies > 0).length],
   ];
   map.forEach(([id, value]) => {
     const node = document.getElementById(id);
@@ -130,7 +131,7 @@ function fillHeroCitySelect(cities) {
   const select = $("#hero-city");
   if (!select) return;
   select.innerHTML =
-    `<option value="">${t("common.city")}</option>` +
+    `<option value="">${t("home.hero.allCities")}</option>` +
     (cities || [])
       .filter((city) => city.companies > 0)
       .map((city) => `<option value="${esc(city.slug)}">${esc(city.name)}</option>`)
@@ -150,14 +151,22 @@ function wireHeroSearch() {
     location.href = `/explorer${params.toString() ? `?${params}` : ""}`;
   });
 
-  $$("[data-quick]").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const value = chip.dataset.quick;
-      const input = $("#hero-search-form input[name='q']");
-      if (input) input.value = value;
-      $("#hero-search-form")?.requestSubmit();
+  const citySelect = $("#hero-city");
+  citySelect?.addEventListener("change", () => {
+    $$("[data-quick]").forEach((chip) => {
+      const query = new URLSearchParams({ q: chip.dataset.quick });
+      if (citySelect.value) query.set("ville", citySelect.value);
+      chip.href = `/explorer?${query}`;
     });
   });
+}
+
+function renderAtlasCities(cities) {
+  const list = $("#atlas-cities");
+  if (!list) return;
+  const items = (cities || []).filter((city) => city.companies > 0).slice(0, 3);
+  list.hidden = !items.length;
+  list.innerHTML = items.map((city) => `<li><a class="atlas-city" href="/villes/${esc(city.slug)}">${icon("mapPin", { size: 14 })}<span>${esc(city.name)}</span></a></li>`).join("");
 }
 
 function renderDemoNote(settings) {
@@ -170,21 +179,20 @@ function renderDemoNote(settings) {
   note.innerHTML = `${icon("info", { size: 14 })} <span>${t("home.demoNote")}</span>`;
 }
 
-export async function init() {
-  wireHeroSearch();
+async function loadHome() {
 
   try {
     const data = await get("/home", { cacheMs: 60_000 });
-    renderStats(data.counts || {});
+    renderStats(data.counts || {}, data.cities);
     renderCities(data.cities);
+    renderAtlasCities(data.cities);
     renderSectors(data.sectors);
     fillHeroCitySelect(data.cities);
     renderCarousel("home-verified", data.verified);
     renderCarousel("home-top", data.topRated);
     renderCarousel("home-new", data.newest);
     renderOffers(data.internships);
-    const meta = await get("/meta", { cacheMs: 5 * 60_000 }).catch(() => null);
-    renderDemoNote(meta?.settings);
+    if (data.demoBanner !== undefined) renderDemoNote({ demoBanner: data.demoBanner });
     revealOnScroll();
   } catch (error) {
     toast.error(errorMessage(error));
@@ -195,10 +203,16 @@ export async function init() {
       host.querySelector("[data-home-retry]")?.addEventListener("click", () => {
         host.hidden = true;
         host.innerHTML = "";
-        init();
+        loadHome();
       });
     }
   }
+}
+
+export async function init() {
+  wireHeroSearch();
+  wireHomeEnhancements();
+  await loadHome();
 }
 
 export default { init };

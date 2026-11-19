@@ -9,7 +9,7 @@
  * Aucune requête n'est construite par concaténation de valeurs : les valeurs
  * passent toujours par des paramètres $n.
  */
-import { query, one, getSettings } from "./db.js";
+import { query, one, getSettings, readBatch } from "./db.js";
 import { fold, levenshtein } from "./text.js";
 
 /* -------------------------------------------------------------------------- */
@@ -325,19 +325,17 @@ export async function listCompanies(filters = {}, { limit = 24, offset = 0 } = {
   const limitIdx = pageParams.length - 1;
   const offsetIdx = pageParams.length;
 
-  const rows = await query(
-    `${companySelect()} ${where} ${orderBy} LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
-    pageParams
-  );
-  const countRows = await query(
-    `SELECT COUNT(*)::int AS total FROM companies c
+  const [rows, countRows] = await readBatch([
+    [`${companySelect()} ${where} ${orderBy} LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
+      pageParams],
+    [`SELECT COUNT(*)::int AS total FROM companies c
      LEFT JOIN cities ci ON ci.id = c.city_id
      LEFT JOIN neighborhoods n ON n.id = c.neighborhood_id
      LEFT JOIN company_sectors cs ON cs.company_id = c.id AND cs.is_primary = TRUE
      LEFT JOIN sectors s ON s.id = cs.sector_id
      ${where}`,
-    params
-  );
+      params],
+  ]);
   const total = countRows[0]?.total ?? 0;
   return {
     items: rows.map((row) => toCompanyCard(row, settings)),
@@ -391,15 +389,6 @@ export async function companySectorList(companySlug) {
     [companySlug]
   );
   return rows;
-}
-
-export async function touchCompanyView(companyId) {
-  if (!companyId) return;
-  try {
-    await query("UPDATE companies SET view_count = view_count + 1 WHERE id = $1", [companyId]);
-  } catch {
-    /* statistique non bloquante */
-  }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -657,58 +646,45 @@ export async function mapCompanies(filters = {}, bbox = null) {
 export async function homeData() {
   const settings = await getSettings();
   const minRating = settings.min_reviews_for_rating ?? 3;
-  const [counts] = await query(
-    `SELECT
+  const [[counts], cities, sectors, hiringRows, newestRows, topRatedRows, verifiedRows, internshipOffers] = await readBatch([
+    [`SELECT
        (SELECT COUNT(*)::int FROM companies WHERE publication_status = 'published' AND deleted_at IS NULL) AS companies,
        (SELECT COUNT(*)::int FROM job_offers o JOIN companies c ON c.id = o.company_id
           WHERE o.status = 'published' AND c.publication_status = 'published'
             AND (o.deadline_at IS NULL OR o.deadline_at > NOW())) AS offers,
        (SELECT COUNT(*)::int FROM reviews WHERE status = 'published') AS reviews,
-       (SELECT COUNT(*)::int FROM companies WHERE verification_level > 0 AND publication_status = 'published') AS verified`
-  );
-  const cities = await query(
-    `SELECT ci.slug, ci.name, ci.region, ci.intro,
+       (SELECT COUNT(*)::int FROM companies WHERE verification_level > 0 AND publication_status = 'published') AS verified`],
+    [`SELECT ci.slug, ci.name, ci.region, ci.intro,
             (SELECT COUNT(*)::int FROM companies c WHERE c.city_id = ci.id AND c.publication_status='published') AS companies,
             (SELECT COUNT(*)::int FROM job_offers o JOIN companies c ON c.id = o.company_id
                WHERE COALESCE(o.city_id, c.city_id) = ci.id AND o.status='published'
                  AND (o.deadline_at IS NULL OR o.deadline_at > NOW())) AS offers
-     FROM cities ci WHERE ci.is_active = TRUE ORDER BY ci.sort_order`
-  );
-  const sectors = await query(
-    `SELECT s.slug, s.name, s.icon, s.color, s.description,
+     FROM cities ci WHERE ci.is_active = TRUE ORDER BY ci.sort_order`],
+    [`SELECT s.slug, s.name, s.icon, s.color, s.description,
             (SELECT COUNT(*)::int FROM company_sectors cs JOIN companies c ON c.id = cs.company_id
               WHERE cs.sector_id = s.id AND c.publication_status='published') AS companies
-     FROM sectors s WHERE s.is_active = TRUE ORDER BY s.sort_order`
-  );
-  const hiringRows = await query(
-    `${companySelect()}
+     FROM sectors s WHERE s.is_active = TRUE ORDER BY s.sort_order`],
+    [`${companySelect()}
      WHERE c.publication_status='published' AND c.deleted_at IS NULL AND c.is_hiring = TRUE
-     ORDER BY c.rating_avg DESC, c.rating_count DESC LIMIT 8`
-  );
-  const newestRows = await query(
-    `${companySelect()}
+     ORDER BY c.rating_avg DESC, c.rating_count DESC LIMIT 8`],
+    [`${companySelect()}
      WHERE c.publication_status='published' AND c.deleted_at IS NULL
-     ORDER BY c.created_at DESC LIMIT 8`
-  );
-  const topRatedRows = await query(
-    `${companySelect()}
+     ORDER BY c.created_at DESC LIMIT 8`],
+    [`${companySelect()}
      WHERE c.publication_status='published' AND c.deleted_at IS NULL AND c.rating_count >= $1
      ORDER BY c.rating_avg DESC, c.rating_count DESC LIMIT 8`,
-    [minRating]
-  );
-  const verifiedRows = await query(
-    `${companySelect()}
+      [minRating]],
+    [`${companySelect()}
      WHERE c.publication_status='published' AND c.deleted_at IS NULL AND c.verification_level > 0
-     ORDER BY c.verification_level DESC, c.rating_avg DESC LIMIT 12`
-  );
-  const internshipOffers = await query(
-    `${offerSelect()}
+     ORDER BY c.verification_level DESC, c.rating_avg DESC LIMIT 12`],
+    [`${offerSelect()}
      WHERE o.status='published' AND o.contract_type LIKE 'stage%'
        AND (o.deadline_at IS NULL OR o.deadline_at > NOW())
-     ORDER BY o.published_at DESC LIMIT 6`
-  );
+     ORDER BY o.published_at DESC LIMIT 6`],
+  ]);
   return {
     counts,
+    demoBanner: settings.demo_banner !== false,
     cities,
     sectors,
     hiring: hiringRows.map((row) => toCompanyCard(row, settings)),
@@ -721,30 +697,26 @@ export async function homeData() {
 
 export async function metaData() {
   const settings = await getSettings();
-  const cities = await query(
-    `SELECT ci.slug, ci.name, ci.region, ci.center_lat, ci.center_lng, ci.zoom,
+  const [cities, sectors, [stats]] = await readBatch([
+    [`SELECT ci.slug, ci.name, ci.region, ci.center_lat, ci.center_lng, ci.zoom,
             (SELECT COUNT(*)::int FROM companies c WHERE c.city_id = ci.id AND c.publication_status='published') AS companies,
             (SELECT json_agg(json_build_object('slug', n.slug, 'name', n.name, 'district', d.name) ORDER BY n.name)
                FROM neighborhoods n LEFT JOIN districts d ON d.id = n.district_id
                WHERE n.city_id = ci.id) AS neighborhoods,
             (SELECT json_agg(json_build_object('slug', d.slug, 'name', d.name) ORDER BY d.name)
                FROM districts d WHERE d.city_id = ci.id) AS districts
-     FROM cities ci WHERE ci.is_active = TRUE ORDER BY ci.sort_order`
-  );
-  const sectors = await query(
-    `SELECT s.slug, s.name, s.icon, s.color, s.description,
+     FROM cities ci WHERE ci.is_active = TRUE ORDER BY ci.sort_order`],
+    [`SELECT s.slug, s.name, s.icon, s.color, s.description,
             (SELECT COUNT(*)::int FROM company_sectors cs JOIN companies c ON c.id = cs.company_id
               WHERE cs.sector_id = s.id AND c.publication_status='published') AS companies
-     FROM sectors s WHERE s.is_active = TRUE ORDER BY s.sort_order`
-  );
-  const stats = await one(
-    `SELECT
+     FROM sectors s WHERE s.is_active = TRUE ORDER BY s.sort_order`],
+    [`SELECT
        (SELECT COUNT(*)::int FROM companies WHERE publication_status='published' AND deleted_at IS NULL) AS companies,
        (SELECT COUNT(*)::int FROM job_offers o JOIN companies c ON c.id = o.company_id
           WHERE o.status='published' AND (o.deadline_at IS NULL OR o.deadline_at > NOW())
             AND c.publication_status='published') AS offers,
-       (SELECT COUNT(*)::int FROM reviews WHERE status='published') AS reviews`
-  );
+       (SELECT COUNT(*)::int FROM reviews WHERE status='published') AS reviews`],
+  ]);
   return {
     cities,
     sectors,

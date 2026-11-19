@@ -14,7 +14,7 @@ export class HttpError extends Error {
 export function ok(res, data, status = 200) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.setHeader("Cache-Control", "no-store");
+  if (!res.hasHeader("Cache-Control")) res.setHeader("Cache-Control", "no-store");
   res.end(JSON.stringify({ ok: true, data }));
 }
 
@@ -152,10 +152,12 @@ export function handler(fn) {
         fail(res, error.status, error.message, error.details);
         return;
       }
-      // Base absente (déploiement sans DATABASE_URL) : message actionnable,
-      // pas une erreur 500 opaque.
       if (error?.code === "db_unavailable") {
-        fail(res, 503, error.message, { code: error.code, detail: error.detail || null });
+        console.warn(`[api] ${req.method} ${req.route?.path || "database"}: ${error.reason}`);
+        if (error.retryable) res.setHeader("Retry-After", "1");
+        fail(res, 503, "Les données sont momentanément indisponibles. Merci de réessayer.", {
+          code: error.code, reason: error.reason, retryable: error.retryable,
+        });
         return;
       }
       console.error("[api] erreur inattendue", error);

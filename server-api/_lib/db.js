@@ -1,139 +1,87 @@
-/**
- * Accès à la base de données.
- *
- * Deux modes, même code SQL :
- *   1. NEON (production) — dès que DATABASE_URL est définie : pool serverless
- *      HTTP de @neondatabase/serverless, compatible Vercel.
- *   2. DÉMONSTRATION (développement local, sans DATABASE_URL) — PostgreSQL
- *      embarqué (PGlite) en mémoire, amorcé avec /data/seed. Les écritures sont
- *      perdues à l'arrêt du processus.
- *
- * ⚠️ Pourquoi PGlite n'est PAS importé statiquement : le paquet embarque un
- * binaire WebAssembly de 13,5 Mo. Traçé par le bundler de Vercel, il était copié
- * dans **chacune** des ~40 fonctions serverless (≈ 540 Mo au total), ce qui fait
- * échouer le déploiement à l'étape « Deploying outputs… ». On le charge donc par
- * un spécificateur volontairement opaque, résolu à l'exécution : en local Node
- * le trouve dans node_modules, en production Vercel il est absent et l'on renvoie
- * une erreur explicite invitant à définir DATABASE_URL.
- */
+/** Connexion distante en production ; PGlite différé et non tracé en local. */
 import { SCHEMA_SQL } from "../../db/schema.mjs";
+import { databaseUrl, resolveDatabase, createRemoteDriver, classifyDatabaseError, DatabaseUnavailableError } from "./database.js";
 
 let driverPromise = null;
 let demoSeedInfo = null;
 
-/** Erreur renvoyée quand aucune base n'est joignable. */
-export class DatabaseUnavailableError extends Error {
-  constructor(message, { detail = "" } = {}) {
-    super(message);
-    this.name = "DatabaseUnavailableError";
-    this.code = "db_unavailable";
-    this.detail = detail;
-  }
-}
-
-/**
- * `import()` volontairement non analysable : le bundler ne peut pas résoudre un
- * spécificateur calculé, donc il n'embarque pas le paquet (ni son wasm).
- */
-function lazyImport(specifier) {
-  return import(specifier);
-}
-
+const lazyImport = (specifier) => import(specifier);
 const PGLITE_PACKAGE = ["@electric-sql", "pglite"].join("/");
 const SEED_MODULE = new URL("../../db/load.mjs", import.meta.url).href;
 
 export function databaseMode() {
-  return process.env.DATABASE_URL ? "neon" : "demo";
+  const url = databaseUrl();
+  if (!url) return (process.env.VERCEL || process.env.RENDER || process.env.NODE_ENV === "production") ? "unconfigured" : "demo";
+  try { return resolveDatabase(url); } catch { return "invalid"; }
 }
 
-export function isDemoDatabase() {
-  return databaseMode() === "demo";
-}
-
-export function demoSeedReport() {
-  return demoSeedInfo;
-}
+export const isDemoDatabase = () => databaseMode() === "demo";
+export const demoSeedReport = () => demoSeedInfo;
 
 async function createDriver() {
-  if (process.env.DATABASE_URL) {
-    const { neon } = await import("@neondatabase/serverless");
-    const sql = neon(process.env.DATABASE_URL);
-    return {
-      mode: "neon",
-      query: async (text, params = []) => {
-        const rows = await sql.query(text, params);
-        return Array.isArray(rows) ? rows : [];
-      },
-    };
-  }
-
-  // Mode démonstration : PostgreSQL compilé en WebAssembly, en mémoire.
-  // Ce mode ne fonctionne qu'en local (le paquet n'est pas déployé).
-  let PGlite;
-  try {
-    ({ PGlite } = await lazyImport(PGLITE_PACKAGE));
-  } catch (error) {
-    throw new DatabaseUnavailableError(
-      "Aucune base de données n'est configurée. Définissez DATABASE_URL (Neon) " +
-        "dans les variables d'environnement du projet, puis redéployez.",
-      { detail: String(error?.message || error) }
-    );
-  }
-
+  const url = databaseUrl();
+  if (url) return createRemoteDriver(url);
+  if (!isDemoDatabase()) throw new DatabaseUnavailableError("missing_url");
+  const { PGlite } = await lazyImport(PGLITE_PACKAGE);
   const pg = new PGlite();
-  const query = async (text, params = []) => {
-    const result = await pg.query(text, params);
-    return result.rows || [];
-  };
-  await pg.exec(SCHEMA_SQL);
-  // Le jeu de démonstration (~150 Ko) n'est chargé qu'ici, jamais en production.
-  const { seedDatabase } = await lazyImport(SEED_MODULE);
-  demoSeedInfo = await seedDatabase(query);
-  console.info(
-    `[db] Mode démonstration : ${demoSeedInfo.companies} entreprises, ${demoSeedInfo.reviews} avis, ` +
-      `${demoSeedInfo.offers} offres chargés en mémoire. Définissez DATABASE_URL (Neon) pour la persistance.`
-  );
-  return { mode: "pglite", query };
+  const query = async (text, params = []) => (await pg.query(text, params)).rows;
+  try {
+    await pg.exec(SCHEMA_SQL);
+    const { seedDatabase } = await lazyImport(SEED_MODULE);
+    demoSeedInfo = await seedDatabase(query);
+    console.info(`[db] Démonstration : ${demoSeedInfo.companies} entreprises chargées en mémoire.`);
+    return { mode: "pglite", query };
+  } catch (error) {
+    await pg.close().catch(() => {});
+    throw error;
+  }
 }
 
 export async function getDriver() {
-  if (!driverPromise) driverPromise = createDriver();
+  driverPromise ??= createDriver().catch((error) => {
+    driverPromise = null;
+    throw error;
+  });
   return driverPromise;
 }
 
-/** Renvoie un tableau de lignes. */
 export async function query(text, params = []) {
-  const driver = await getDriver();
-  return driver.query(text, params);
-}
-
-/** Renvoie la première ligne ou null. */
-export async function one(text, params = []) {
-  const rows = await query(text, params);
-  return rows.length ? rows[0] : null;
-}
-
-/* -------------------------------------------------------------------------- */
-/*  Réglages du site (cache mémoire 30 s)                                      */
-/* -------------------------------------------------------------------------- */
-let settingsCache = { at: 0, value: null };
-
-export async function getSettings({ force = false } = {}) {
-  const now = Date.now();
-  if (!force && settingsCache.value && now - settingsCache.at < 30000) {
-    return settingsCache.value;
+  try {
+    return await (await getDriver()).query(text, params);
+  } catch (error) {
+    throw classifyDatabaseError(error);
   }
-  const rows = await query("SELECT key, value FROM settings");
-  const value = {};
-  for (const row of rows) value[row.key] = row.value;
-  // Valeurs par défaut si la base a été vidée.
-  value.site_name ||= "CONGLOMERAT";
-  value.min_reviews_for_rating ||= 3;
-  value.min_reviews_for_ranking ||= 5;
-  value.payment_mode ||= "demo";
-  value.features ||= {};
-  settingsCache = { at: now, value };
-  return value;
+}
+
+/** Regroupe les lectures indépendantes en un seul aller-retour HTTP Neon. */
+export async function readBatch(statements) {
+  try {
+    const driver = await getDriver();
+    if (driver.mode === "neon") return await driver.batch(statements);
+    return await Promise.all(statements.map(([text, params]) => driver.query(text, params)));
+  } catch (error) {
+    throw classifyDatabaseError(error);
+  }
+}
+
+export async function one(text, params = []) {
+  return (await query(text, params))[0] ?? null;
+}
+
+let settingsCache = { at: 0, value: null, pending: null };
+
+export async function getSettings() {
+  const cache = settingsCache;
+  if (cache.value && Date.now() - cache.at < 30_000) return cache.value;
+  cache.pending ??= query("SELECT key, value FROM settings").then((rows) => {
+    cache.value = Object.assign({
+      site_name: "CONGLOMERAT", min_reviews_for_rating: 3,
+      min_reviews_for_ranking: 5, payment_mode: "demo", features: {},
+    }, Object.fromEntries(rows.map((row) => [row.key, row.value])));
+    cache.at = Date.now();
+    return cache.value;
+  }).finally(() => { cache.pending = null; });
+  return cache.pending;
 }
 
 export async function setSetting(key, value) {
@@ -142,20 +90,18 @@ export async function setSetting(key, value) {
      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
     [key, JSON.stringify(value)]
   );
-  settingsCache = { at: 0, value: null };
+  settingsCache = { at: 0, value: null, pending: null };
 }
 
-/** Utilisé par le script d'installation et les tests. */
 export async function healthCheck() {
+  const mode = databaseMode();
   try {
-    const rows = await query("SELECT COUNT(*)::int AS companies FROM companies");
-    return { ok: true, mode: databaseMode(), companies: rows[0]?.companies ?? 0 };
+    const row = await one(`SELECT (SELECT COUNT(*)::int FROM companies) AS companies,
+      to_regclass('settings') IS NOT NULL AND to_regclass('company_events') IS NOT NULL
+        AND to_regclass('job_offers') IS NOT NULL AND to_regclass('reviews') IS NOT NULL AS ready`);
+    if (!row.ready) return { ok: false, mode, code: "schema_missing" };
+    return { ok: true, mode, companies: row.companies };
   } catch (error) {
-    return {
-      ok: false,
-      mode: error?.code === "db_unavailable" ? "unconfigured" : databaseMode(),
-      error: String(error?.message || error),
-      code: error?.code || null,
-    };
+    return { ok: false, mode, code: error.reason || "database_error" };
   }
 }

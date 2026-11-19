@@ -228,13 +228,8 @@ export async function getCurrentUser(req) {
     };
   }
 
-  try {
-    const user = await one(SELECT_USER, [payload.sub]);
-    if (!user || user.status !== "active") return null;
-    return user;
-  } catch {
-    return null;
-  }
+  const user = await one(SELECT_USER, [payload.sub]);
+  return user?.status === "active" ? user : null;
 }
 
 export async function requireUser(req) {

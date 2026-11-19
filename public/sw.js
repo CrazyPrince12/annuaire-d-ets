@@ -11,7 +11,7 @@
  * caches sont supprimés à l'activation.
  */
 
-const VERSION = "v2-2026-11";
+const VERSION = "v4-2026-11";
 const SHELL_CACHE = `conglomerat-shell-${VERSION}`;
 const PAGE_CACHE = `conglomerat-pages-${VERSION}`;
 const OFFLINE_URL = "/hors-ligne";
@@ -25,6 +25,7 @@ const SHELL_ASSETS = [
   "/assets/css/pages.css",
   "/assets/js/core/app.js",
   "/assets/js/core/api.js",
+  "/assets/js/core/events.js",
   "/assets/js/core/config.js",
   "/assets/js/core/i18n.js",
   "/assets/js/core/icons.js",

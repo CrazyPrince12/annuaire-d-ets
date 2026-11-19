@@ -1,5 +1,6 @@
 /** Application Express commune à Vercel, Render et au développement local. */
 import express from 'express';
+import compression from 'compression';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -100,8 +101,11 @@ app.all('/sitemap.xml', endpoint(handler28));
 app.all('/api/suggest', endpoint(handler29));
 app.all('/api/votes', endpoint(handler30));
 
+app.get('/healthz', (req, res) => res.set('Cache-Control', 'no-store').json({ status: 'ok' }));
 app.use('/api', (req, res) => res.status(404).json({ ok: false, error: 'Route API inconnue.' }));
 app.get('/index.html', (req, res) => res.redirect(308, '/'));
+// Seulement les pages et assets publics ; les API, sessions et erreurs restent inchangées.
+app.use(compression({ threshold: 1024 }));
 const publicDir = path.join(root, 'public');
 const pages = {
   '/entreprises': 'explorer.html',

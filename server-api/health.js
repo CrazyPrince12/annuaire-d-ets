@@ -10,7 +10,7 @@ export default handler(async (req, res) => {
     database: health.mode,
     demo: isDemoDatabase(),
     companies: health.companies ?? 0,
-    error: health.error || null,
+    code: health.code || null,
     time: new Date().toISOString(),
-  });
+  }, health.ok ? 200 : 503);
 });

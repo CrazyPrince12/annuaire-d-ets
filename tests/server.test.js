@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import app from '../server.js';
 let server, base;
 before(async () => {
+  // Les tests écrivent des événements : ne jamais toucher la base de .env.local.
+  for (const key of ["DATABASE_URL", "POSTGRES_URL", "VERCEL", "RENDER", "NODE_ENV"]) delete process.env[key];
   server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;
@@ -16,6 +18,19 @@ for (const route of ['/', '/explorer', '/carte', '/entreprises', '/entreprises/e
     if (route.startsWith('/admin')) assert.equal(res.headers.get('x-robots-tag'), 'noindex, nofollow');
   });
 }
+test('accueil : assets compressés, maquette non bloquante et recherche sans JavaScript', async () => {
+  const res = await fetch(base + '/', { headers: { 'accept-encoding': 'gzip' } });
+  assert.equal(res.headers.get('content-encoding'), 'gzip');
+  assert.match(res.headers.get('vary'), /Accept-Encoding/i);
+  const body = await res.text();
+  assert.match(body, /<form[^>]+id="hero-search-form"[^>]+action="\/explorer"/);
+  assert.match(body, /city-maquette-480\.avif/);
+  assert.doesNotMatch(body, /(?:src|href)="[^"\n]*(?:three-city|lenis|scroll-trigger)\.[m]?js"/);
+  const module = await fetch(base + '/assets/vendor/three-city.mjs');
+  assert.equal(module.status, 200);
+  assert.match(module.headers.get('content-type'), /javascript/);
+});
+
 test('redirections canoniques et filtres', async () => {
   for (const [route, location] of [['/index.html', '/'], ['/stages', '/offres?type=stage'], ['/inscription', '/login?mode=register']]) {
     const res = await fetch(base + route, { redirect: 'manual' });
@@ -36,4 +51,49 @@ test('paramètres dynamiques transmis aux handlers (prioritaires sur query)', as
   const res = await fetch(base + '/api/companies/entreprise-inexistante?slug=autre');
   assert.equal(res.status, 404);
   assert.equal((await res.json()).ok, false);
+});
+
+test('démarrage local : santé, accueil public cachable et annuaire filtrable', async () => {
+  const health = await fetch(base + '/api/health');
+  assert.equal(health.status, 200);
+  assert.equal(health.headers.get('cache-control'), 'no-store');
+  assert.equal((await health.json()).data.status, 'ok');
+  const home = await fetch(base + '/api/home');
+  assert.equal(home.status, 200);
+  assert.match(home.headers.get('cache-control'), /s-maxage=120/);
+  assert.ok((await home.json()).data.counts.companies > 0);
+  const listing = await fetch(base + '/api/companies?q=orange');
+  assert.equal(listing.status, 200);
+  assert.ok((await listing.json()).data.items.some((company) => company.slug.includes('orange')));
+});
+
+test('une fiche ne bloque plus sur une écriture et une vue ne compte qu’une fois', async () => {
+  const { one, query } = await import('../server-api/_lib/db.js');
+  const company = await one("SELECT id, slug, view_count FROM companies WHERE publication_status = 'published' LIMIT 1");
+  const detail = await fetch(`${base}/api/companies/${company.slug}`);
+  assert.equal(detail.status, 200);
+  assert.equal((await detail.json()).data.company.viewCount, company.view_count);
+  assert.equal((await one('SELECT view_count FROM companies WHERE id = $1', [company.id])).view_count, company.view_count);
+
+  const eventId = crypto.randomUUID();
+  const postEvent = (body) => fetch(base + '/api/events', {
+    method: 'POST', headers: { 'content-type': 'application/json', origin: base },
+    body: JSON.stringify({ kind: 'view', companySlug: company.slug, ...body }),
+  });
+  const [primary, duplicate] = await Promise.all([postEvent({ eventId }), postEvent({ eventId })]);
+  assert.equal(primary.status, 200);
+  assert.equal(duplicate.status, 200);
+  const responses = await Promise.all([primary.json(), duplicate.json()]);
+  assert.equal(responses.filter((result) => result.data.counted).length, 1);
+  assert.deepEqual((await (await postEvent({ eventId })).json()).data, { counted: false, accepted: true });
+  assert.equal((await one('SELECT view_count FROM companies WHERE id = $1', [company.id])).view_count, company.view_count + 1);
+  assert.equal((await one('SELECT count(*)::int AS n FROM company_events WHERE id = $1', [eventId])).n, 1);
+  assert.equal((await postEvent({ kind: 'invented' })).status, 400);
+  assert.deepEqual((await (await postEvent({ companySlug: 'slug-absent' })).json()).data, { counted: false, accepted: false });
+  try {
+    await query("UPDATE companies SET deleted_at = NOW() WHERE id = $1", [company.id]);
+    assert.deepEqual((await (await postEvent({ kind: 'phone_click' })).json()).data, { counted: false, accepted: false });
+  } finally {
+    await query("UPDATE companies SET deleted_at = NULL WHERE id = $1", [company.id]);
+  }
 });

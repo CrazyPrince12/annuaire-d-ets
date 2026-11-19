@@ -12,7 +12,6 @@ import {
   companySectorList,
   getCompanyBySlug,
   similarCompanies,
-  touchCompanyView,
 } from "../_lib/repo.js";
 
 export default handler(async (req, res) => {
@@ -26,15 +25,14 @@ export default handler(async (req, res) => {
     throw new HttpError(410, "Cette fiche a été retirée de l'annuaire.");
   }
 
-  const settings = await getSettings();
-  const [summary, reviews, offers, similar] = await Promise.all([
+  const [settings, summary, reviews, offers, similar, sectors] = await Promise.all([
+    getSettings(),
     companyReviewSummary(company.id),
     companyReviews(company.id, { limit: 12, sort: "helpful" }),
     companyOffers(company.id),
     similarCompanies(company, 6),
+    companySectorList(slug),
   ]);
-
-  await touchCompanyView(company.id);
 
   const minReviews = settings.min_reviews_for_rating ?? 3;
   return ok(res, {
@@ -48,7 +46,7 @@ export default handler(async (req, res) => {
     reviews,
     offers,
     similar,
-    sectors: await companySectorList(slug),
+    sectors,
     demoDataset: company.provenance === "exemple",
   });
 });

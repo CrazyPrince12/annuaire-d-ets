@@ -67,7 +67,24 @@
               Filtrez par secteur, ville, note et services.
             </p>
           </div>
+          <a class="btn btn-outline sm cta-icon" href="#france-resources"><span data-i18n="explore.france.jump">Rechercher en France</span><span data-icon="arrowRight" aria-hidden="true"></span></a>
         </div>
+
+        <details class="card france-resources" id="france-resources">
+          <summary data-i18n="explore.france.title">Vous cherchez une entreprise française ?</summary>
+          <p class="muted small" data-i18n="explore.france.desc">CONGLOMERAT couvre le Cameroun. Pour une entreprise immatriculée en France, consultez ces sources externes :</p>
+          <form class="france-lookup" action="https://annuaire-entreprises.data.gouv.fr/rechercher" method="get" target="_blank" rel="noopener noreferrer" aria-describedby="france-hint">
+            <label for="france-query" data-i18n="explore.france.query">Dénomination, SIREN ou SIRET</label>
+            <input class="input" id="france-query" name="terme" type="search" maxlength="120" required autocomplete="off" enterkeyhint="search" />
+            <button type="submit" class="btn btn-secondary cta-icon">
+              <span data-i18n="explore.france.submit">Rechercher dans l’annuaire officiel</span><span data-icon="externalLink" aria-hidden="true"></span>
+            </button>
+          </form>
+          <div class="row">
+            <a class="btn btn-outline sm cta-underline" id="france-pappers" href="https://www.pappers.fr/recherche" target="_blank" rel="noopener noreferrer"><span>Pappers</span><span class="visually-hidden" data-i18n="a11y.external"></span></a>
+          </div>
+          <p class="muted small" id="france-hint" data-i18n="explore.france.hint">La recherche ne quitte cette page que lorsque vous choisissez une source.</p>
+        </details>
 
         <div class="explorer-layout">
           <aside class="filters-panel" id="filters-panel" aria-label="Filtres"></aside>
@@ -123,6 +140,7 @@
             </div>
           </div>
         </div>
+
       </div>
 
       <div class="filter-fab">

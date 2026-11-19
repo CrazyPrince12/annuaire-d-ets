@@ -48,7 +48,7 @@ const state = {
 let meta = null;
 let total = 0;
 let pages = 1;
-let loading = false;
+let activeRequest;
 
 /* ------------------------------------------------------------------- état */
 
@@ -286,14 +286,17 @@ const params = () => ({
 });
 
 async function load({ append = false } = {}) {
-  if (loading) return;
-  loading = true;
+  if (append && activeRequest) return;
+  activeRequest?.abort();
+  const controller = new AbortController();
+  activeRequest = controller;
   const host = $("#results");
   if (!append && host) host.innerHTML = skeletonCards(6);
   $("#results-notice").hidden = true;
 
   try {
-    const data = await get("/companies", { params: params(), cacheMs: 20_000 });
+    const data = await get("/companies", { params: params(), cacheMs: 20_000, signal: controller.signal });
+    if (controller.signal.aborted) return;
     total = data.total || 0;
     pages = data.pages || 1;
     renderResults(data, { append });
@@ -303,13 +306,20 @@ async function load({ append = false } = {}) {
     activeFilters();
     if (append) announce(t("explore.count", { n: formatNumber(total) }));
   } catch (error) {
-    if (host) {
-      host.innerHTML = errorState({ text: errorMessage(error), retryAttr: "data-retry-results" });
-      host.querySelector("[data-retry-results]")?.addEventListener("click", () => load({ append }));
+    if (controller.signal.aborted) return;
+    const errorHost = append ? $("#results-notice") : host;
+    if (errorHost) {
+      errorHost.hidden = false;
+      errorHost.innerHTML = errorState({ text: errorMessage(error), retryAttr: "data-retry-results" });
+      errorHost.querySelector("[data-retry-results]")?.addEventListener("click", () => {
+        if (append && !activeRequest) state.page += 1;
+        load({ append });
+      });
     }
+    if (append) state.page -= 1;
     toast.error(errorMessage(error));
   } finally {
-    loading = false;
+    if (activeRequest === controller) activeRequest = null;
   }
 }
 
@@ -410,9 +420,11 @@ function wire() {
 
   // Pagination
   $("#load-more")?.addEventListener("click", (event) => {
-    setLoading(event.currentTarget, true);
+    if (activeRequest) return;
+    const button = event.currentTarget;
+    setLoading(button, true);
     state.page += 1;
-    load({ append: true }).finally(() => setLoading(event.currentTarget, false));
+    load({ append: true }).finally(() => setLoading(button, false));
   });
 
   // Feuille de filtres mobile
@@ -436,9 +448,33 @@ function wire() {
   });
 }
 
+function wireFranceLookup() {
+  const panel = $("#france-resources");
+  const input = $("#france-query");
+  const pappers = $("#france-pappers");
+  const openFromHash = () => {
+    if (panel && location.hash === "#france-resources") panel.open = true;
+  };
+  openFromHash();
+  window.addEventListener("hashchange", openFromHash);
+  input?.addEventListener("input", () => {
+    const url = new URL("https://www.pappers.fr/recherche");
+    const query = input.value.trim();
+    if (query) url.searchParams.set("q", query);
+    if (pappers) pappers.href = url.href;
+  });
+  panel?.querySelector("form")?.addEventListener("submit", (event) => {
+    if (!input) return;
+    input.value = input.value.trim();
+    if (!input.value) { event.preventDefault(); input.reportValidity(); }
+  });
+}
+
 export async function init() {
+  wireFranceLookup();
   readState();
 
+  const initialResults = load();
   // Le carnet de villes déclenché depuis l'accueil peut arriver en `?ville=`.
   try {
     meta = await get("/meta", { cacheMs: 5 * 60_000 });
@@ -459,7 +495,7 @@ export async function init() {
 
   wire();
   syncControls();
-  await load();
+  await initialResults;
   writeState({ push: false });
 }
 

@@ -30,6 +30,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  min-height: calc(var(--header-h) + env(safe-area-inset-top, 0px) + 1px);
   background: var(--glass-bg);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
   backdrop-filter: blur(var(--glass-blur)) saturate(150%);
@@ -183,6 +184,7 @@
 /* « Île de verre » flottante sur grand écran */
 @media (min-width: 1024px) {
   .site-header {
+    min-height: 78px;
     background: transparent;
     border-bottom: 0;
     backdrop-filter: none;
@@ -2114,4 +2116,65 @@ tbody tr:hover {
   display: flex;
   gap: 6px;
   flex: 0 0 auto;
+}
+
+/* CTA 2026 : 1 réacteur, 5 morphisme, 7 flip, 12 soulignement, 15 icône et 21 sceau. */
+.cta-reactor { position: relative; }
+.cta-reactor::before, .cta-reactor::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid transparent;
+  border-inline-color: currentColor;
+  border-radius: 34%;
+  pointer-events: none;
+  opacity: 0;
+}
+.cta-reactor::after { rotate: 90deg; }
+.cta-reactor:is(:hover, :focus-visible)::before,
+.cta-reactor:is(:hover, :focus-visible)::after { opacity: .65; }
+.cta-flip { display: grid; overflow: hidden; }
+.cta-flip > span { grid-area: 1 / 1; }
+.cta-flip > span + span { visibility: hidden; }
+.cta-underline > span { position: relative; }
+.cta-underline > span::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -3px;
+  height: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.cta-underline:is(:hover, :focus-visible) > span::after { transform: scaleX(1); }
+.cta-seal .seal-mark {
+  flex: 0 0 40px;
+  width: 40px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  color: #332507;
+  background: #ffdf82;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px #88621b, 0 1px 4px #0003;
+}
+.cta-seal .seal-mark svg { grid-area: 1 / 1; }
+.cta-seal .seal-ring { width: 100%; fill: currentColor; font-size: 6.5px; font-weight: 800; }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root:not([data-saver="true"]) .cta-reactor::before,
+  :root:not([data-saver="true"]) .cta-reactor::after {
+    transition: opacity .18s ease, scale .2s ease;
+  }
+  :root:not([data-saver="true"]) .cta-reactor:is(:hover, :focus-visible)::before,
+  :root:not([data-saver="true"]) .cta-reactor:is(:hover, :focus-visible)::after { scale: 1.12; }
+  :root:not([data-saver="true"]) .cta-morph { transition: border-radius .22s ease, background .22s ease; }
+  :root:not([data-saver="true"]) .cta-morph:is(:hover, :focus-visible) { border-radius: 20px 8px; }
+  :root:not([data-saver="true"]) .cta-flip > span { transition: transform .23s var(--ease); }
+  :root:not([data-saver="true"]) .cta-flip > span + span { visibility: visible; transform: translateY(105%); }
+  :root:not([data-saver="true"]) .btn:is(:hover, :focus-visible) .cta-flip > span:first-child { transform: translateY(-105%); }
+  :root:not([data-saver="true"]) .btn:is(:hover, :focus-visible) .cta-flip > span + span { transform: none; }
+  :root:not([data-saver="true"]) .cta-underline > span::after { transition: transform .2s ease; }
+  :root:not([data-saver="true"]) .cta-icon > span:last-child { transition: transform .2s var(--ease); }
+  :root:not([data-saver="true"]) .cta-icon:is(:hover, :focus-visible) > span:last-child { transform: translateX(3px); }
 }

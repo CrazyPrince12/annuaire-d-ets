@@ -10,9 +10,9 @@
 import { UI } from "./config.js";
 import { t, formatNumber } from "./i18n.js";
 import { icon } from "./icons.js";
-import { esc } from "./ui.js";
 
 let libPromise = null;
+let maplibre = null;
 
 function loadStylesheet(href) {
   if (document.querySelector(`link[href="${href}"]`)) return;
@@ -24,19 +24,13 @@ function loadStylesheet(href) {
 
 /** Charge MapLibre une seule fois. */
 export function loadMapLibre() {
-  if (window.maplibregl) return Promise.resolve(window.maplibregl);
-  if (libPromise) return libPromise;
-
-  libPromise = new Promise((resolve, reject) => {
+  if (!libPromise) {
     loadStylesheet("/assets/vendor/maplibre-gl.css");
-    const script = document.createElement("script");
-    script.src = "/assets/vendor/maplibre-gl.js";
-    script.async = true;
-    script.onload = () => resolve(window.maplibregl || null);
-    script.onerror = () => reject(new Error("maplibre-load"));
-    document.head.appendChild(script);
-  }).catch(() => null);
-
+    libPromise = import("../../vendor/maplibre-gl.mjs").then((lib) => (maplibre = lib)).catch(() => {
+      libPromise = null;
+      return null;
+    });
+  }
   return libPromise;
 }
 
@@ -44,7 +38,7 @@ export function supportsWebGL() {
   try {
     const canvas = document.createElement("canvas");
     return Boolean(
-      window.WebGLRenderingContext && (canvas.getContext("webgl2") || canvas.getContext("webgl"))
+      canvas.getContext("webgl2")
     );
   } catch {
     return false;
@@ -66,18 +60,14 @@ export async function createMap(container, options = {}) {
 
   const { center = UI.mapHome, zoom = UI.mapHome.zoom, styleUrl = UI.mapStyle } = options;
 
-  const map = new lib.Map({
-    container,
-    style: styleUrl,
-    center: [center.lng, center.lat],
-    zoom,
-    maxZoom: UI.mapMaxZoom,
-    minZoom: 4.5,
-    attributionControl: false,
-    dragRotate: false,
-    pitchWithRotate: false,
-    touchPitch: false,
-  });
+  let map;
+  try {
+    map = new lib.Map({
+      container, style: styleUrl, center: [center.lng, center.lat], zoom,
+      maxZoom: UI.mapMaxZoom, minZoom: 4.5, attributionControl: false,
+      dragRotate: false, pitchWithRotate: false, touchPitch: false,
+    });
+  } catch { return null; }
 
   map.addControl(new lib.NavigationControl({ showCompass: false }), "bottom-right");
   map.addControl(
@@ -88,14 +78,20 @@ export async function createMap(container, options = {}) {
     "bottom-left"
   );
 
-  await new Promise((resolve) => {
-    if (map.loaded()) resolve();
-    else map.once("load", resolve);
-    setTimeout(resolve, 6000);
+  const ready = await new Promise((resolve) => {
+    if (map.loaded()) return resolve(true);
+    const onLoad = () => { clearTimeout(timer); resolve(true); };
+    const timer = setTimeout(() => { map.off("load", onLoad); resolve(false); }, 6000);
+    map.once("load", onLoad);
   });
-
+  if (!ready) {
+    map.remove();
+    return null;
+  }
   applyThemeToMap(map);
-  window.addEventListener("cg:theme", () => applyThemeToMap(map));
+  const onTheme = () => applyThemeToMap(map);
+  window.addEventListener("cg:theme", onTheme);
+  map.once("remove", () => window.removeEventListener("cg:theme", onTheme));
 
   return map;
 }
@@ -148,8 +144,8 @@ export function markerElement(company) {
  * @param {{onSelect?:(company:any)=>void, activeSlug?:string}} [handlers]
  */
 export function renderMarkers(map, companies, { onSelect, activeSlug } = {}) {
-  if (!map || !window.maplibregl) return { clear: () => {} };
-  const lib = window.maplibregl;
+  if (!map || !maplibre) return { clear: () => {} };
+  const lib = maplibre;
   const markers = [];
   const points = [];
 
@@ -192,36 +188,14 @@ export function fitCompanies(map, companies, { maxZoom = 14, padding = 60 } = {}
     map.easeTo({ center: points[0], zoom: 15, duration: 700 });
     return;
   }
-  const lib = window.maplibregl;
+  const lib = maplibre;
   const bounds = new lib.LngLatBounds();
   points.forEach((point) => bounds.extend(point));
   map.fitBounds(bounds, { padding, maxZoom, duration: 700 });
-}
-
-/** Mini-carte d'une fiche entreprise (un seul marqueur, non interactif). */
-export async function createMiniMap(container, company) {
-  if (!container || !company) return null;
-  if (!Number.isFinite(company.lat) || !Number.isFinite(company.lng)) return null;
-  const map = await createMap(container, {
-    center: { lat: company.lat, lng: company.lng },
-    zoom: 15,
-  });
-  if (!map) {
-    container.innerHTML = `<div class="map-fallback">${icon("mapPin", { size: 20 })}
-      <span>${esc(company.address || company.city?.name || "")}</span></div>`;
-    return null;
-  }
-  map.scrollZoom.disable();
-  map.dragRotate.disable();
-  const lib = window.maplibregl;
-  const el = markerElement(company);
-  el.classList.add("active");
-  new lib.Marker({ element: el, anchor: "center" }).setLngLat([company.lng, company.lat]).addTo(map);
-  return map;
 }
 
 export function areaLabel(count) {
   return count === 1 ? t("map.results.one") : t("map.results", { n: formatNumber(count) });
 }
 
-export default { createMap, createMiniMap, renderMarkers, fitCompanies, loadMapLibre, supportsWebGL };
+export default { createMap, renderMarkers, fitCompanies, loadMapLibre, supportsWebGL };
