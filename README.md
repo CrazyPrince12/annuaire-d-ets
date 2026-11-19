@@ -54,13 +54,15 @@ npm run check                 # vérifie que les deux versions sont cohérentes
 
 ## Variables d'environnement
 
-Toutes sont facultatives en local. **En production, une URL PostgreSQL et `AUTH_SECRET` sont
-obligatoires** : le mode démonstration (PGlite) n'est pas embarqué dans les fonctions
-serverless — voir la note de déploiement ci-dessous.
+Pour des données persistantes, configurer une URL PostgreSQL et `AUTH_SECRET`. Sans URL,
+le mode démo reste disponible en local et sur Render ; il n’est pas embarqué dans la
+fonction Vercel. Une URL présente mais invalide ou inaccessible ne déclenche jamais la démo.
 
 | Variable | Défaut | Rôle |
 | --- | --- | --- |
-| `DATABASE_URL` | `POSTGRES_URL` si définie | Chaîne PostgreSQL. Sans URL, PGlite n’est activé qu’en développement local. |
+| `DATABASE_URL` | `POSTGRES_URL`, puis `POSTGRES_URL_NON_POOLING` | Chaîne PostgreSQL serveur, jamais une URL de tableau de bord. |
+| `DATABASE_TRANSPORT` | `auto` | Neon utilise HTTPS avec repli pour les lectures sur TCP/TLS. `tcp` force PostgreSQL direct. |
+| `DATABASE_REQUIRED` | `false` | `true` interdit notamment le mode démo sans URL sur Render. |
 | `AUTH_SECRET` | généré | Clé de signature des cookies de session. **À définir en production.** |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | `credentials.js` | Surcharge du compte super administrateur. |
 | `PAYMENT_MODE` | `demo` | Paiement Mobile Money simulé (code `123456`). |
@@ -154,21 +156,30 @@ réseau privé ; depuis Vercel ou un poste externe, utiliser l’URL **externe**
 règles d’accès/TLS du fournisseur. Ne pas désactiver la vérification des certificats.
 Configurer le health check du Web Service sur `/healthz` : le processus reste sain
 pendant le réveil de la base. `/api/health` contrôle séparément l’accès aux données.
+Sans URL, Render charge le jeu de démonstration en mémoire comme auparavant : il ne
+contient pas vos données réelles et ses écritures sont perdues à chaque redémarrage.
+Pour une instance persistante, définir `DATABASE_REQUIRED=true` et `DATABASE_URL`.
 
 ### Diagnostic de la base
 
 - Sur Neon (`*.neon.tech`), préférer l’URL **pooled** : le pilote envoie les requêtes en HTTPS.
   Une autre URL PostgreSQL utilise un petit pool TCP, sans WebSocket. Héberger l’application
-  dans une région proche de la base réduit les allers-retours. `DATABASE_URL` a priorité
-  sur `POSTGRES_URL`. Ne jamais mettre ces variables dans les assets publics.
+  dans une région proche de la base réduit les allers-retours. En cas de panne du
+  transport Neon HTTPS, les lectures peuvent se replier sur PostgreSQL TCP avec TLS
+  vérifié, vers la même base. Les écritures déjà envoyées ne sont pas rejouées.
+  `DATABASE_TRANSPORT=tcp` peut servir si le chemin HTTPS n’est pas disponible.
+  `DATABASE_URL` a priorité sur ses replis. Ne jamais mettre ces variables dans les assets publics.
 - Sur Vercel, configurer la variable dans l’environnement réellement déployé (**Production**
   ou **Preview**), puis **redéployer**. Tester avec `curl -i https://<domaine>/api/health`.
 - `/api/health` renvoie **200** si la base répond et que les tables principales sont là,
-  sinon **503** avec un code court. Une base initialisée mais vide est saine (`companies: 0`).
+  sinon **503** avec un code court. `transport` indique `neon-http`, `postgres-tcp` ou
+  `pglite` en cas de succès. Une base initialisée mais vide est saine (`companies: 0`).
 
 | Code | Action |
 | --- | --- |
 | `missing_url` / `invalid_url` | Vérifier l’environnement, le format `postgresql://…` et l’encodage des caractères du mot de passe. |
+| `invalid_transport` | Utiliser `auto` ou `tcp` pour `DATABASE_TRANSPORT`. |
+| `query_timeout` | La connexion répond, mais la requête a dépassé son délai : consulter les logs et les performances de la base. |
 | `schema_missing` | Exécuter `npm run db:init` avec la même base, puis vérifier `/api/health`. Le script corrigé ne saute plus les instructions précédées d’un commentaire. |
 | `credentials` / `permissions` | Vérifier l’identifiant, la base, le mot de passe et les droits du rôle. |
 | `connection` / `tls` | Vérifier réseau privé/externe, SSL, disponibilité du fournisseur et proximité des régions. |

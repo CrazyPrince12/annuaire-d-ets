@@ -154,7 +154,8 @@ robots sociaux n'exécutent pas JavaScript. `/api/og?slug=…` fournit en compl�
 ### 21. PGlite hors des fonctions serverless
 
 **Décision.** Le mode démonstration (PGlite, PostgreSQL en WebAssembly) reste un confort de
-développement local, jamais un composant déployé. `api/_lib/db.js` l'importe par un
+développement local et de démonstration sur Render, hors du bundle Vercel.
+`server-api/_lib/db.js` l’importe par un
 spécificateur calculé pour que le bundler de Vercel ne le trace pas.
 
 **Pourquoi.** PGlite pèse 23 Mo, dont `postgres.wasm` (8,1 Mo) et `postgres.data` (5,4 Mo).
@@ -163,8 +164,9 @@ le build réussissait (`Build Completed in /vercel/output`) puis le déploiement
 « Deploying outputs… ». Chaque fonction fait désormais 0,5 Mo. `maxDuration` est ramené à 10 s,
 plafond des fonctions Node du plan Hobby (15 s faisait refuser le déploiement).
 
-**Conséquence.** En ligne, une URL PostgreSQL (`DATABASE_URL` ou `POSTGRES_URL`) est obligatoire. Sans elle,
-l’API répond 503 et `/api/health` affiche `database: "unconfigured"`. Le contrôle
+**Conséquence.** Une URL PostgreSQL est nécessaire sur Vercel, ou sur une instance Render
+persistante (`DATABASE_REQUIRED=true`). Sans elle, la démo en mémoire suffit pour un Render
+de démonstration. Une URL configurée mais en panne n’est jamais remplacée par PGlite. Le contrôle
 « Poids des fonctions » de `npm run check` interdit la réapparition d'un import statique de
 PGlite ou de `sharp` dans `api/`.
 

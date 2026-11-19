@@ -11,7 +11,7 @@
  * caches sont supprimés à l'activation.
  */
 
-const VERSION = "v4-2026-11";
+const VERSION = "v5-2026-11";
 const SHELL_CACHE = `conglomerat-shell-${VERSION}`;
 const PAGE_CACHE = `conglomerat-pages-${VERSION}`;
 const OFFLINE_URL = "/hors-ligne";
