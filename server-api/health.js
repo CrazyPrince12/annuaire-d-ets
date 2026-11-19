@@ -5,12 +5,15 @@ import { handler, ok, requireMethod } from "./_lib/http.js";
 export default handler(async (req, res) => {
   if (!requireMethod(req, res, "GET")) return;
   const health = await healthCheck();
+  if (health.retryable) res.setHeader("Retry-After", "1");
   return ok(res, {
     status: health.ok ? "ok" : "degraded",
     database: health.mode,
+    transport: health.transport || null,
     demo: isDemoDatabase(),
     companies: health.companies ?? 0,
     code: health.code || null,
+    retryable: health.retryable === true,
     time: new Date().toISOString(),
   }, health.ok ? 200 : 503);
 });

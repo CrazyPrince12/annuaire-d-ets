@@ -1,4 +1,4 @@
-/** Connexion distante en production ; PGlite différé et non tracé en local. */
+/** Connexion distante ou démonstration ; PGlite différé et non tracé pour Vercel. */
 import { SCHEMA_SQL } from "../../db/schema.mjs";
 import { databaseUrl, resolveDatabase, createRemoteDriver, classifyDatabaseError, DatabaseUnavailableError } from "./database.js";
 
@@ -11,7 +11,12 @@ const SEED_MODULE = new URL("../../db/load.mjs", import.meta.url).href;
 
 export function databaseMode() {
   const url = databaseUrl();
-  if (!url) return (process.env.VERCEL || process.env.RENDER || process.env.NODE_ENV === "production") ? "unconfigured" : "demo";
+  if (!url) {
+    const persistenceRequired = /^(1|true)$/i.test(process.env.DATABASE_REQUIRED?.trim() || "");
+    const canDemo = !process.env.VERCEL && !persistenceRequired &&
+      (process.env.RENDER || process.env.NODE_ENV !== "production");
+    return canDemo ? "demo" : "unconfigured";
+  }
   try { return resolveDatabase(url); } catch { return "invalid"; }
 }
 
@@ -30,7 +35,7 @@ async function createDriver() {
     const { seedDatabase } = await lazyImport(SEED_MODULE);
     demoSeedInfo = await seedDatabase(query);
     console.info(`[db] Démonstration : ${demoSeedInfo.companies} entreprises chargées en mémoire.`);
-    return { mode: "pglite", query };
+    return { mode: "pglite", transport: "pglite", query, read: query };
   } catch (error) {
     await pg.close().catch(() => {});
     throw error;
@@ -53,12 +58,20 @@ export async function query(text, params = []) {
   }
 }
 
-/** Regroupe les lectures indépendantes en un seul aller-retour HTTP Neon. */
+/** Seules les lectures explicites peuvent être rejouées sur un autre transport. */
+export async function read(text, params = []) {
+  try {
+    return await (await getDriver()).read(text, params);
+  } catch (error) {
+    throw classifyDatabaseError(error);
+  }
+}
+
 export async function readBatch(statements) {
   try {
     const driver = await getDriver();
-    if (driver.mode === "neon") return await driver.batch(statements);
-    return await Promise.all(statements.map(([text, params]) => driver.query(text, params)));
+    if (driver.readBatch) return await driver.readBatch(statements);
+    return await Promise.all(statements.map(([text, params]) => driver.read(text, params)));
   } catch (error) {
     throw classifyDatabaseError(error);
   }
@@ -68,12 +81,16 @@ export async function one(text, params = []) {
   return (await query(text, params))[0] ?? null;
 }
 
+export async function readOne(text, params = []) {
+  return (await read(text, params))[0] ?? null;
+}
+
 let settingsCache = { at: 0, value: null, pending: null };
 
 export async function getSettings() {
   const cache = settingsCache;
   if (cache.value && Date.now() - cache.at < 30_000) return cache.value;
-  cache.pending ??= query("SELECT key, value FROM settings").then((rows) => {
+  cache.pending ??= read("SELECT key, value FROM settings").then((rows) => {
     cache.value = Object.assign({
       site_name: "CONGLOMERAT", min_reviews_for_rating: 3,
       min_reviews_for_ranking: 5, payment_mode: "demo", features: {},
@@ -96,12 +113,13 @@ export async function setSetting(key, value) {
 export async function healthCheck() {
   const mode = databaseMode();
   try {
-    const row = await one(`SELECT (SELECT COUNT(*)::int FROM companies) AS companies,
+    const row = await readOne(`SELECT (SELECT COUNT(*)::int FROM companies) AS companies,
       to_regclass('settings') IS NOT NULL AND to_regclass('company_events') IS NOT NULL
         AND to_regclass('job_offers') IS NOT NULL AND to_regclass('reviews') IS NOT NULL AS ready`);
-    if (!row.ready) return { ok: false, mode, code: "schema_missing" };
-    return { ok: true, mode, companies: row.companies };
+    const { transport } = await getDriver();
+    if (!row?.ready) return { ok: false, mode, transport, code: "schema_missing" };
+    return { ok: true, mode, transport, companies: row.companies };
   } catch (error) {
-    return { ok: false, mode, code: error.reason || "database_error" };
+    return { ok: false, mode, code: error.reason || "database_error", retryable: error.retryable === true };
   }
 }

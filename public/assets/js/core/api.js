@@ -10,7 +10,8 @@
 import { t } from "./i18n.js";
 
 const BASE = "/api";
-const DEFAULT_TIMEOUT = 8_000;
+const READ_TIMEOUT = 16_000;
+const WRITE_TIMEOUT = 12_000;
 
 export class ApiError extends Error {
   constructor(message, { status = 0, code = "error", details = null, offline = false } = {}) {
@@ -58,7 +59,7 @@ export async function request(path, options = {}) {
     method = "GET",
     body,
     params,
-    timeout = DEFAULT_TIMEOUT,
+    timeout = method === "GET" ? READ_TIMEOUT : WRITE_TIMEOUT,
     cacheMs = 0,
     signal,
     retry = method === "GET",
@@ -113,7 +114,7 @@ export async function request(path, options = {}) {
     signal?.removeEventListener("abort", onAbort);
   }
 
-  const unavailable = response?.status === 503 && payload?.details?.retryable !== false;
+  const unavailable = response?.status === 503 && (payload?.details?.retryable ?? payload?.data?.retryable) !== false;
   if (retry && (transportError || unavailable || response?.status === 502 || response?.status === 504)) {
     const delay = Math.max(0, Math.min(1000, (Number(response?.headers.get("Retry-After")) || 0.25) * 1000));
     await new Promise((resolve) => setTimeout(resolve, delay));

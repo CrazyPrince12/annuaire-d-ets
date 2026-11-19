@@ -425,7 +425,13 @@ export function errorMessage(error) {
   if (!error) return t("common.errorGeneric");
   if (error.offline) return t("common.errorNetwork");
   if (error.code === "timeout") return t("common.errorGeneric");
-  if (error.code === "db_unavailable") return t("common.databaseUnavailable");
+  if (error.code === "db_unavailable") {
+    const message = t("common.databaseUnavailable");
+    const reason = error.details?.reason;
+    return typeof reason === "string" && /^[a-z_]{1,32}$/.test(reason)
+      ? `${message} ${t("common.databaseReference", { code: reason })}`
+      : message;
+  }
   return error.message || t("common.errorGeneric");
 }
 

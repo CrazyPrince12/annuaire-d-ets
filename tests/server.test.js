@@ -4,7 +4,9 @@ import app from '../server.js';
 let server, base;
 before(async () => {
   // Les tests écrivent des événements : ne jamais toucher la base de .env.local.
-  for (const key of ["DATABASE_URL", "POSTGRES_URL", "VERCEL", "RENDER", "NODE_ENV"]) delete process.env[key];
+  for (const key of ["DATABASE_URL", "POSTGRES_URL", "POSTGRES_URL_NON_POOLING", "VERCEL", "DATABASE_REQUIRED"]) delete process.env[key];
+  process.env.RENDER = "true";
+  process.env.NODE_ENV = "production";
   server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   base = `http://127.0.0.1:${server.address().port}`;
@@ -53,11 +55,14 @@ test('paramètres dynamiques transmis aux handlers (prioritaires sur query)', as
   assert.equal((await res.json()).ok, false);
 });
 
-test('démarrage local : santé, accueil public cachable et annuaire filtrable', async () => {
+test('Render sans DATABASE_URL : démo opérationnelle en NODE_ENV=production', async () => {
   const health = await fetch(base + '/api/health');
   assert.equal(health.status, 200);
   assert.equal(health.headers.get('cache-control'), 'no-store');
-  assert.equal((await health.json()).data.status, 'ok');
+  const report = (await health.json()).data;
+  assert.equal(report.status, 'ok');
+  assert.equal(report.transport, 'pglite');
+  assert.equal(report.demo, true);
   const home = await fetch(base + '/api/home');
   assert.equal(home.status, 200);
   assert.match(home.headers.get('cache-control'), /s-maxage=120/);

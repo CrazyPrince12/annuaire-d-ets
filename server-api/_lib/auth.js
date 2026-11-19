@@ -8,7 +8,7 @@
  * - Chaque route serveur revérifie le rôle : masquer un bouton ne protège rien.
  */
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
-import { query, one } from "./db.js";
+import { query, one, readOne } from "./db.js";
 import { HttpError, getIp, ipPrefix } from "./http.js";
 import { safeEqual } from "./password.js";
 import CREDENTIALS from "../../credentials.js";
@@ -228,7 +228,7 @@ export async function getCurrentUser(req) {
     };
   }
 
-  const user = await one(SELECT_USER, [payload.sub]);
+  const user = await readOne(SELECT_USER, [payload.sub]);
   return user?.status === "active" ? user : null;
 }
 

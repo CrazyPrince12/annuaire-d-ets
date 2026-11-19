@@ -67,6 +67,7 @@ test('PostgreSQL TCP : migration d’une base vide, reprise sans redémarrer et 
     await migrate('--seed-only');
     const health = await data('/api/health');
     assert.equal(health.database, 'postgres');
+    assert.equal(health.transport, 'postgres-tcp');
     assert.equal(health.demo, false);
     assert.ok(health.companies > 0);
     await migrate();

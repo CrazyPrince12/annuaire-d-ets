@@ -9,7 +9,7 @@
  * Aucune requête n'est construite par concaténation de valeurs : les valeurs
  * passent toujours par des paramètres $n.
  */
-import { query, one, getSettings, readBatch } from "./db.js";
+import { read, readOne, getSettings, readBatch } from "./db.js";
 import { fold, levenshtein } from "./text.js";
 
 /* -------------------------------------------------------------------------- */
@@ -238,7 +238,7 @@ let vocabularyCache = { at: 0, words: null };
 
 async function vocabulary() {
   if (vocabularyCache.words && Date.now() - vocabularyCache.at < 300000) return vocabularyCache.words;
-  const rows = await query(
+  const rows = await read(
     `SELECT name AS value FROM companies WHERE publication_status = 'published'
      UNION SELECT name FROM sectors
      UNION SELECT name FROM cities
@@ -348,7 +348,7 @@ export async function listCompanies(filters = {}, { limit = 24, offset = 0 } = {
 
 export async function getCompanyBySlug(slug) {
   const settings = await getSettings();
-  const row = await one(
+  const row = await readOne(
     `${companySelect(`c.legal_name, c.description_long, c.employees_estimate, c.legal_status,
        c.address, c.landmark, c.hiring_domains, c.verification_expires_at, c.source_url,
        c.reputation_index, c.view_count, c.last_checked_at, c.city_id, c.neighborhood_id,
@@ -381,7 +381,7 @@ export async function getCompanyBySlug(slug) {
 }
 
 export async function companySectorList(companySlug) {
-  const rows = await query(
+  const rows = await read(
     `SELECT s.slug, s.name, s.color, s.icon FROM sectors s
      JOIN company_sectors cs ON cs.sector_id = s.id
      JOIN companies c ON c.id = cs.company_id
@@ -408,7 +408,7 @@ export function relationshipLabel(key) {
 }
 
 export async function companyReviewSummary(companyId) {
-  const rows = await query(
+  const rows = await read(
     `SELECT COUNT(*)::int AS total,
             AVG(rating_overall)::float AS average,
             AVG(NULLIF(ratings->>'work_env','')::numeric)::float AS work_env,
@@ -464,7 +464,7 @@ export async function companyReviews(companyId, { relationship = "", sort = "rec
           : "ORDER BY r.published_at DESC";
 
   params.push(limit, offset);
-  const rows = await query(
+  const rows = await read(
     `SELECT r.id, r.relationship, r.period_label, r.role_label, r.rating_overall, r.ratings,
             r.title, r.pros, r.cons, r.advice, r.verified_experience, r.helpful_count,
             r.reply_body, r.reply_at, r.published_at, r.created_at,
@@ -479,7 +479,7 @@ export async function companyReviews(companyId, { relationship = "", sort = "rec
     params
   );
   const countParams = relationship ? [companyId, relationship] : [companyId];
-  const countRows = await query(
+  const countRows = await read(
     `SELECT COUNT(*)::int AS total FROM reviews r WHERE ${where.join(" AND ")}`,
     countParams
   );
@@ -551,12 +551,12 @@ export async function listOffers(filters = {}, { limit = 24, offset = 0 } = {}) 
         : "ORDER BY o.published_at DESC";
 
   params.push(limit, offset);
-  const rows = await query(
+  const rows = await read(
     `${offerSelect()} WHERE ${where.join(" AND ")} ${order}
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
     params
   );
-  const countRows = await query(
+  const countRows = await read(
     `SELECT COUNT(*)::int AS total FROM job_offers o
      JOIN companies c ON c.id = o.company_id
      LEFT JOIN cities ci ON ci.id = COALESCE(o.city_id, c.city_id)
@@ -577,7 +577,7 @@ export async function listOffers(filters = {}, { limit = 24, offset = 0 } = {}) 
 }
 
 export async function getOfferBySlug(slug) {
-  const row = await one(
+  const row = await readOne(
     `${offerSelect("o.description, o.missions, o.profile, o.benefits, o.apply_target")}
      WHERE o.slug = $1 LIMIT 1`,
     [slug]
@@ -594,7 +594,7 @@ export async function getOfferBySlug(slug) {
 }
 
 export async function companyOffers(companyId, limit = 12) {
-  const rows = await query(
+  const rows = await read(
     `${offerSelect()}
      WHERE o.company_id = $1 AND o.status = 'published'
      ORDER BY o.published_at DESC LIMIT $2`,
@@ -604,7 +604,7 @@ export async function companyOffers(companyId, limit = 12) {
 }
 
 export async function similarCompanies(company, limit = 6) {
-  const rows = await query(
+  const rows = await read(
     `${companySelect()}
      WHERE c.publication_status = 'published' AND c.deleted_at IS NULL
        AND c.id <> $1
@@ -633,7 +633,7 @@ export async function mapCompanies(filters = {}, bbox = null) {
     );
   }
   allParams.push(300);
-  const rows = await query(
+  const rows = await read(
     `${companySelect()} WHERE ${conditions.join(" AND ")} LIMIT $${allParams.length}`,
     allParams
   );
@@ -738,7 +738,7 @@ export async function metaData() {
 export async function reputationData() {
   const settings = await getSettings();
   const minRanking = settings.min_reviews_for_ranking ?? 5;
-  const bySector = await query(
+  const bySector = await read(
     `SELECT s.slug AS sector_slug, s.name AS sector_name, s.color, s.icon,
             c.slug, c.name, c.rating_avg, c.rating_count,
             ci.slug AS city_slug, ci.name AS city_name
@@ -769,14 +769,14 @@ export async function reputationData() {
       });
     }
   }
-  const recent = await query(
+  const recent = await read(
     `SELECT r.id, r.title, r.rating_overall, r.relationship, r.published_at, r.pros,
             c.slug AS company_slug, c.name AS company_name, ci.name AS city_name
      FROM reviews r JOIN companies c ON c.id = r.company_id
      LEFT JOIN cities ci ON ci.id = c.city_id
      WHERE r.status='published' ORDER BY r.published_at DESC LIMIT 8`
   );
-  const internships = await query(
+  const internships = await read(
     `SELECT c.slug, c.name, AVG(NULLIF(r.ratings->>'internship','')::numeric)::float AS score,
             COUNT(*)::int AS reviews
      FROM reviews r JOIN companies c ON c.id = r.company_id
@@ -784,7 +784,7 @@ export async function reputationData() {
      GROUP BY c.slug, c.name HAVING COUNT(*) >= 3
      ORDER BY score DESC LIMIT 5`
   );
-  const atmosphere = await query(
+  const atmosphere = await read(
     `SELECT c.slug, c.name, AVG(NULLIF(r.ratings->>'work_env','')::numeric)::float AS score,
             COUNT(*)::int AS reviews
      FROM reviews r JOIN companies c ON c.id = r.company_id
@@ -814,7 +814,7 @@ export async function suggest(term, { limit = 8 } = {}) {
   }
   const like = `%${folded}%`;
   const [companies, sectors, neighborhoods, offers] = await Promise.all([
-    query(
+    read(
       `SELECT c.slug, c.name, c.rating_avg, c.rating_count, ci.name AS city_name, s.name AS sector_name
        FROM companies c
        LEFT JOIN cities ci ON ci.id = c.city_id
@@ -824,19 +824,19 @@ export async function suggest(term, { limit = 8 } = {}) {
        ORDER BY (c.name ILIKE $2) DESC, c.rating_count DESC LIMIT $3`,
       [like, `${term}%`, limit]
     ),
-    query(
+    read(
       `SELECT slug, name, icon FROM sectors
        WHERE lower(name) LIKE $1 OR slug LIKE $1
        ORDER BY (lower(name) LIKE $2) DESC LIMIT 4`,
       [like, `${folded}%`]
     ),
-    query(
+    read(
       `SELECT n.slug, n.name, ci.slug AS city_slug, ci.name AS city_name
        FROM neighborhoods n JOIN cities ci ON ci.id = n.city_id
        WHERE lower(n.name) LIKE $1 LIMIT 4`,
       [like]
     ),
-    query(
+    read(
       `SELECT o.slug, o.title, o.contract_type, c.name AS company_name
        FROM job_offers o JOIN companies c ON c.id = o.company_id
        WHERE o.status='published' AND o.search_text LIKE $1
@@ -848,7 +848,7 @@ export async function suggest(term, { limit = 8 } = {}) {
   // Correction de frappe : on propose le secteur ou la ville le plus proche.
   let corrected = null;
   if (!companies.length && folded.length >= 4) {
-    const candidates = await query(
+    const candidates = await read(
       `SELECT slug, name, 'secteur' AS kind FROM sectors
        UNION ALL SELECT slug, name, 'ville' FROM cities WHERE is_active = TRUE
        UNION ALL SELECT slug, name, 'entreprise' FROM companies WHERE publication_status = 'published'`
@@ -881,7 +881,7 @@ export async function suggest(term, { limit = 8 } = {}) {
 export async function companiesByIds(ids = []) {
   if (!ids.length) return [];
   const settings = await getSettings();
-  const rows = await query(
+  const rows = await read(
     `${companySelect()} WHERE c.id = ANY($1::uuid[]) AND c.publication_status = 'published'`,
     [ids]
   );
@@ -890,14 +890,14 @@ export async function companiesByIds(ids = []) {
 
 export async function offersByIds(ids = []) {
   if (!ids.length) return [];
-  const rows = await query(`${offerSelect()} WHERE o.id = ANY($1::uuid[])`, [ids]);
+  const rows = await read(`${offerSelect()} WHERE o.id = ANY($1::uuid[])`, [ids]);
   return rows.map(toOfferCard);
 }
 
 export async function companiesBySlugs(slugs = []) {
   if (!slugs.length) return [];
   const settings = await getSettings();
-  const rows = await query(
+  const rows = await read(
     `${companySelect()} WHERE c.slug = ANY($1::text[]) AND c.publication_status = 'published'`,
     [slugs]
   );
