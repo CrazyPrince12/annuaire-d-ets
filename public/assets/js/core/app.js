@@ -17,8 +17,7 @@ import { initNav } from "./nav.js";
 import { initSearch } from "./search.js";
 import { initFavorites } from "./favorites.js";
 import { toast } from "./toast.js";
-import { $, revealOnScroll, announce, hydrateIcons } from "./ui.js";
-import { errorMessage } from "./ui.js";
+import { $, revealOnScroll, announce, hydrateIcons, errorMessage } from "./ui.js";
 
 /* 1 — thème (évite tout clignotement clair/sombre) */
 initTheme();
@@ -52,7 +51,7 @@ const PAGES = {
 async function boot() {
   initSearch();
   initFavorites();
-  const user = await initNav();
+  const userReady = initNav();
 
   // Révélations au défilement (dégradé si l'API manque).
   revealOnScroll();
@@ -66,7 +65,7 @@ async function boot() {
   const top = $("[data-back-to-top]");
   if (top) {
     top.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
       $("main")?.focus?.({ preventScroll: true });
     });
   }
@@ -91,7 +90,8 @@ async function boot() {
   if (loader) {
     try {
       const module = await loader();
-      await module.init?.({ user });
+      const user = ["account", "admin", "business", "offer", "premium"].includes(page) ? await userReady : null;
+      await module.init?.({ user, userReady });
     } catch (error) {
       console.error(`[app] page « ${page} » :`, error);
       const host = $("[data-page-error]");

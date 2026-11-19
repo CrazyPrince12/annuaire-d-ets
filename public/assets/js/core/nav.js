@@ -7,6 +7,7 @@
  * embarque un `<noscript>` avec les liens essentiels (voir le modèle HTML).
  */
 
+import { trackContact } from "./events.js";
 import { SITE, SITE_NAME } from "./config.js";
 import { t, setLang, getLang } from "./i18n.js";
 import { icon } from "./icons.js";
@@ -497,7 +498,7 @@ function wireGlobalActions() {
       const kindMap = { phone: "phone_click", whatsapp: "whatsapp_click", site: "site_click", direction: "direction_click" };
       const kind = kindMap[trackLink.dataset.track];
       const slug = trackLink.closest("[data-company]")?.dataset.company || document.body.dataset.company;
-      if (kind && slug) post("/events", { kind, companySlug: slug }).catch(() => null);
+      if (kind && slug) trackContact(kind, slug);
     }
   });
 
@@ -620,7 +621,8 @@ export async function initNav() {
   wireGlobalActions();
   wireNetwork();
   ensureCookieBanner();
-  if (document.body.dataset.demo !== "false") ensureDemoRibbon();
+  // L’accueil possède déjà sa note démo ; ne pas insérer un bandeau au-dessus du titre.
+  if (document.body.dataset.page !== "home" && document.body.dataset.demo !== "false") ensureDemoRibbon();
 
   await renderAuth();
   window.addEventListener("cg:lang", () => {

@@ -132,6 +132,7 @@ async function loadArea({ fit = false } = {}) {
     drawMarkers();
     if (fit && items.length) fitCompanies(map, items, { maxZoom: 13 });
   } catch (error) {
+    if (id !== requestId) return;
     if (host) {
       host.innerHTML = errorState({ text: errorMessage(error), retryAttr: "data-map-retry" });
       host.querySelector("[data-map-retry]")?.addEventListener("click", () => loadArea());
@@ -234,7 +235,10 @@ async function fillFilters() {
 export async function init() {
   wireListInteractions();
   wireGeolocate();
-  await fillFilters();
+  void fillFilters();
+  const params = new URLSearchParams(location.search);
+  const input = $("#map-q");
+  if (input) input.value = (params.get("q") || "").slice(0, 120);
 
   $("#map-q")?.addEventListener("input", loadAreaDebounced);
   $("#map-city")?.addEventListener("change", () => loadAreaDebounced());
@@ -246,10 +250,14 @@ export async function init() {
   }
 
   const mapNode = $("#map");
-  const center = { lat: UI.mapHome.lat, lng: UI.mapHome.lng };
+  const lat = parseFloat(params.get("lat"));
+  const lng = parseFloat(params.get("lng"));
+  const hasLocation = Math.abs(lat) <= 85 && Math.abs(lng) <= 180;
+  const zoom = hasLocation ? Math.min(UI.mapMaxZoom, Math.max(4.5, parseFloat(params.get("z")) || 16)) : UI.mapHome.zoom;
+  const center = hasLocation ? { lat, lng } : { lat: UI.mapHome.lat, lng: UI.mapHome.lng };
   mapNode.innerHTML = `<div class="map-loading">${icon("loader", { size: 20 })} ${t("map.loading")}</div>`;
 
-  map = await createMap(mapNode, { center, zoom: UI.mapHome.zoom });
+  map = await createMap(mapNode, { center, zoom });
   if (!map) {
     renderFallback(t("map.webglError"));
     return;

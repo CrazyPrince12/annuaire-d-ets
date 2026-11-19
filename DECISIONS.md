@@ -102,9 +102,9 @@ l'affiche.
 
 ### 13. Contrat de `/api/health`
 
-**Décision.** `{ ok, mode: "neon"|"demo", companies, error? }`. `ok` reste vrai en mode démo :
-la santé décrit la disponibilité du service, pas la présence d'une base distante. `db:check` et
-la supervision peuvent ainsi l'utiliser tel quel.
+**Décision.** `/api/health` expose le statut, le transport, la volumétrie et un code de
+diagnostic sans secret. Le HTTP est 503 si la base n’est pas prête. Le mode démo local
+est sain lorsqu’il est initialisé. `/healthz` vérifie uniquement le processus Express.
 
 ### 14. Identité visuelle
 
@@ -163,8 +163,8 @@ le build réussissait (`Build Completed in /vercel/output`) puis le déploiement
 « Deploying outputs… ». Chaque fonction fait désormais 0,5 Mo. `maxDuration` est ramené à 10 s,
 plafond des fonctions Node du plan Hobby (15 s faisait refuser le déploiement).
 
-**Conséquence.** En ligne, `DATABASE_URL` (Neon) est obligatoire. Sans elle, l'API répond 503
-avec un message actionnable et `/api/health` affiche `database: "unconfigured"`. Le contrôle
+**Conséquence.** En ligne, une URL PostgreSQL (`DATABASE_URL` ou `POSTGRES_URL`) est obligatoire. Sans elle,
+l’API répond 503 et `/api/health` affiche `database: "unconfigured"`. Le contrôle
 « Poids des fonctions » de `npm run check` interdit la réapparition d'un import statique de
 PGlite ou de `sharp` dans `api/`.
 

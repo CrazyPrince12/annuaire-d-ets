@@ -10,7 +10,7 @@
 import { t } from "./i18n.js";
 
 const BASE = "/api";
-const DEFAULT_TIMEOUT = 12_000;
+const DEFAULT_TIMEOUT = 8_000;
 
 export class ApiError extends Error {
   constructor(message, { status = 0, code = "error", details = null, offline = false } = {}) {
@@ -19,7 +19,7 @@ export class ApiError extends Error {
     this.status = status;
     this.code = code;
     this.details = details;
-    this.offline = offline || status === 0;
+    this.offline = offline;
   }
 }
 
@@ -51,7 +51,7 @@ export function buildUrl(path, params) {
  * Requête JSON.
  * @param {string} path chemin relatif à /api (« /companies »)
  * @param {{method?:string, body?:any, params?:object, timeout?:number, cacheMs?:number,
- *          signal?:AbortSignal, retry?:boolean}} [options]
+ *          signal?:AbortSignal, retry?:boolean, keepalive?:boolean}} [options]
  */
 export async function request(path, options = {}) {
   const {
@@ -62,8 +62,10 @@ export async function request(path, options = {}) {
     cacheMs = 0,
     signal,
     retry = method === "GET",
+    keepalive = false,
   } = options;
 
+  if (signal?.aborted) throw signal.reason;
   const url = buildUrl(path, params);
   const cacheKey = `${method} ${url}`;
 
@@ -74,7 +76,7 @@ export async function request(path, options = {}) {
 
   if (typeof navigator !== "undefined" && navigator.onLine === false) {
     const hit = cache.get(cacheKey);
-    if (hit) return hit.value;
+    if (hit && hit.offlineUntil > Date.now()) return hit.value;
     throw new ApiError(t("common.errorNetwork"), { code: "offline", offline: true });
   }
 
@@ -86,7 +88,8 @@ export async function request(path, options = {}) {
     else signal.addEventListener("abort", onAbort, { once: true });
   }
 
-  let response;
+  let response, payload;
+  let transportError;
   try {
     response = await fetch(url, {
       method,
@@ -97,30 +100,35 @@ export async function request(path, options = {}) {
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal: controller.signal,
-      cache: method === "GET" ? "no-cache" : "no-store",
+      cache: method === "GET" ? "default" : "no-store",
+      keepalive,
     });
+    try { payload = await response.json(); }
+    catch (err) { if (controller.signal.aborted) throw err; }
   } catch (err) {
-    clearTimeout(timer);
     if (signal?.aborted) throw err;
-    if (retry) return request(path, { ...options, retry: false });
-    const aborted = err?.name === "AbortError" || err?.name === "TimeoutError";
-    throw new ApiError(t(aborted ? "common.errorGeneric" : "common.errorNetwork"), {
-      code: aborted ? "timeout" : "network",
-    });
+    transportError = controller.signal.aborted ? controller.signal.reason : err;
   } finally {
     clearTimeout(timer);
-    if (signal) signal.removeEventListener("abort", onAbort);
+    signal?.removeEventListener("abort", onAbort);
   }
 
-  let payload = null;
-  try {
-    payload = await response.json();
-  } catch {
-    payload = null;
+  const unavailable = response?.status === 503 && payload?.details?.retryable !== false;
+  if (retry && (transportError || unavailable || response?.status === 502 || response?.status === 504)) {
+    const delay = Math.max(0, Math.min(1000, (Number(response?.headers.get("Retry-After")) || 0.25) * 1000));
+    await new Promise((resolve) => setTimeout(resolve, delay));
+    if (signal?.aborted) throw signal.reason;
+    return request(path, { ...options, retry: false });
+  }
+  if (transportError) {
+    const timedOut = transportError.name === "AbortError" || transportError.name === "TimeoutError";
+    throw new ApiError(t(timedOut ? "common.errorGeneric" : "common.errorNetwork"), {
+      code: timedOut ? "timeout" : "network", offline: !timedOut,
+    });
   }
 
-  if (!response.ok || !payload || payload.ok === false) {
-    const message = (payload && (payload.error || payload.message)) || `HTTP ${response.status}`;
+  if (!response.ok || payload?.ok !== true) {
+    const message = payload?.error || payload?.message || t("common.errorGeneric");
     throw new ApiError(message, {
       status: response.status,
       code: payload?.code || payload?.details?.code || "server",
@@ -130,11 +138,8 @@ export async function request(path, options = {}) {
 
   const value = payload.data !== undefined ? payload.data : payload;
   if (cacheMs > 0) {
-    cache.set(cacheKey, { expires: Date.now() + cacheMs, value });
-    // On garde aussi une copie « hors ligne » plus longue (5 min).
-    if (!cache.has(`${cacheKey}#offline`)) {
-      cache.set(`${cacheKey}#offline`, { expires: Date.now() + 300_000, value });
-    }
+    const expires = Date.now() + cacheMs;
+    cache.set(cacheKey, { expires, offlineUntil: expires + 300_000, value });
   }
   return value;
 }

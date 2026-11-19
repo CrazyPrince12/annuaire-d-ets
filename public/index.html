@@ -30,7 +30,6 @@
     <link rel="icon" href="/assets/img/favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/assets/fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/assets/css/tokens.css" />
     <link rel="stylesheet" href="/assets/css/base.css" />
@@ -100,7 +99,7 @@
 
     <noscript>
       <div class="banner warning">
-        <span>Activez JavaScript pour profiter de la recherche et de la carte.</span>
+        <span>Activez JavaScript pour afficher les résultats et utiliser la carte interactive.</span>
         <a class="link" href="/explorer.html">Explorer les entreprises</a>
       </div>
     </noscript>
@@ -110,25 +109,24 @@
       <section class="hero">
         <div class="hero-bg" aria-hidden="true"></div>
         <div class="hero-grain" aria-hidden="true"></div>
-        <div class="container">
+        <div class="container hero-layout">
           <div class="hero-inner">
             <p class="hero-pill">
               <span class="dot" aria-hidden="true"></span>
-              <span id="hero-pill-text" data-i18n="home.hero.pill">Nouveau · entreprises référencées</span>
+              <span id="hero-pill-text" data-i18n="home.hero.pill">Annuaire des entreprises · Cameroun</span>
             </p>
 
             <h1>
-              <span data-i18n="home.hero.title">Trouvez l'entreprise qu'il vous faut,</span><br />
-              <span class="grad" data-i18n="home.hero.titleAccent">près de chez vous.</span>
+              <span data-i18n="home.hero.title">Trouvez la bonne entreprise,</span><br />
+              <span class="grad" data-i18n="home.hero.titleAccent">au Cameroun.</span>
             </h1>
 
             <p class="hero-sub" data-i18n="home.hero.sub">
-              Annuaire indépendant des entreprises camerounaises : coordonnées vérifiées, avis publiés après
-              modération, horaires réels et itinéraires.
+              Recherchez par métier, ville ou quartier. Comparez les fiches, consultez les avis modérés et contactez les entreprises directement.
             </p>
 
             <div class="hero-search">
-              <form class="search-pill" id="hero-search-form" role="search" novalidate>
+              <form class="search-pill" id="hero-search-form" role="search" action="/explorer" novalidate>
                 <div class="segment">
                   <label for="hero-q" data-i18n="home.hero.searchLabel">Que cherchez-vous ?</label>
                   <input
@@ -143,25 +141,23 @@
                 </div>
                 <div class="segment">
                   <label for="hero-city" data-i18n="home.hero.whereLabel">Où ?</label>
-                  <select id="hero-city" name="ville" class="select-plain"></select>
+                  <select id="hero-city" name="ville" class="select-plain">
+                    <option value="" data-i18n="home.hero.allCities">Toutes les villes</option>
+                  </select>
                 </div>
-                <button class="btn-round" type="submit" aria-label="Rechercher" data-i18n-attr="aria-label:search.submit">
+                <button class="btn-round cta-reactor" type="submit" aria-label="Rechercher" data-i18n-attr="aria-label:search.submit">
                   <span data-icon="search"></span>
                 </button>
               </form>
 
-              <button class="search-mobile" type="button" data-open-search>
-                <span data-icon="search"></span>
-                <span data-i18n="search.placeholder">Entreprise, métier, quartier…</span>
-              </button>
             </div>
 
             <div class="hero-quick">
               <span class="faint small" data-i18n="home.quick">Populaire :</span>
-              <button class="chip sm" type="button" data-quick="comptable">Comptable</button>
-              <button class="chip sm" type="button" data-quick="restaurant">Restaurant</button>
-              <button class="chip sm" type="button" data-quick="plombier">Plombier</button>
-              <button class="chip sm" type="button" data-quick="informatique">Informatique</button>
+              <a class="chip sm cta-morph" href="/explorer?q=comptable" data-quick="comptable" data-i18n="home.quick.accounting">Comptable</a>
+              <a class="chip sm cta-morph" href="/explorer?q=restaurant" data-quick="restaurant" data-i18n="home.quick.food">Restaurant</a>
+              <a class="chip sm cta-morph" href="/explorer?q=plombier" data-quick="plombier" data-i18n="home.quick.plumbing">Plombier</a>
+              <a class="chip sm cta-morph" href="/explorer?q=informatique" data-quick="informatique" data-i18n="home.quick.tech">Informatique</a>
             </div>
 
             <div class="hero-stats">
@@ -174,11 +170,49 @@
                 <div class="label" data-i18n="home.hero.stat.reviews">avis vérifiés</div>
               </div>
               <div>
-                <div class="num" id="stat-cities">3</div>
+                <div class="num" id="stat-cities">—</div>
                 <div class="label" data-i18n="home.hero.stat.cities">villes couvertes</div>
               </div>
             </div>
           </div>
+
+          <aside class="city-atlas" aria-labelledby="city-atlas-title">
+            <figure class="atlas-figure">
+              <div class="atlas-stage" id="atlas-stage">
+                <picture>
+                  <source type="image/avif" media="(max-width: 560px)" srcset="/assets/img/city-maquette-480.avif" />
+                  <source type="image/avif" srcset="/assets/img/city-maquette-480.avif 480w, /assets/img/city-maquette-640.avif 640w, /assets/img/city-maquette-1000.avif 1000w"
+                          sizes="(min-width: 1440px) 630px, (min-width: 900px) 44vw, calc(100vw - 32px)" />
+                  <img class="atlas-image" src="/assets/img/city-maquette-640.webp"
+                       srcset="/assets/img/city-maquette-640.webp 640w, /assets/img/city-maquette-1000.webp 1000w"
+                       sizes="(min-width: 1440px) 630px, (min-width: 900px) 44vw, calc(100vw - 32px)"
+                       width="640" height="478" alt="" fetchpriority="high" />
+                </picture>
+                <div class="atlas-canvas" id="atlas-canvas" aria-hidden="true" hidden></div>
+                <span class="atlas-grid" aria-hidden="true"></span>
+                <div class="atlas-toolbar">
+                  <span class="atlas-tag"><span class="atlas-signal" aria-hidden="true"></span>
+                    <span data-i18n="home.atlas.label">ATLAS LOCAL</span></span>
+                  <div class="atlas-tools">
+                    <button class="atlas-tool" type="button" id="atlas-rotate" hidden>
+                      <span data-icon="rotateCcw"></span><span class="visually-hidden" data-i18n="home.atlas.rotate">Tourner la maquette</span>
+                    </button>
+                    <button class="atlas-tool" type="button" id="atlas-toggle" aria-pressed="false" aria-controls="atlas-canvas" hidden>
+                      <span data-icon="layers"></span><span data-i18n="home.atlas.toggle">Maquette 3D</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <figcaption class="atlas-caption">
+                <span class="atlas-caption-icon" aria-hidden="true" data-icon="mapPin"></span>
+                <div><h2 id="city-atlas-title" data-i18n="home.atlas.title">Le Cameroun, ville par ville</h2>
+                  <p data-i18n="home.atlas.caption">Maquette illustrative · pas une carte de navigation</p></div>
+                <a href="/carte" class="atlas-map-link cta-icon"><span data-i18n="nav.map">Carte</span><span data-icon="arrowUpRight" aria-hidden="true"></span></a>
+              </figcaption>
+              <p class="atlas-status" id="atlas-status" role="status" hidden></p>
+            </figure>
+            <ul class="atlas-cities" id="atlas-cities" hidden></ul>
+          </aside>
         </div>
       </section>
 
@@ -195,8 +229,11 @@
                 Trois villes de lancement, une même exigence de vérification.
               </p>
             </div>
-            <a class="btn btn-ghost sm" href="/villes">
-              <span data-i18n="common.seeAll">Tout voir</span>
+            <a class="btn btn-ghost sm cta-icon" href="/villes">
+              <span class="cta-flip">
+                <span data-i18n="common.seeAll">Tout voir</span>
+                <span aria-hidden="true" data-i18n="common.seeAll">Tout voir</span>
+              </span>
               <span data-icon="arrowRight"></span>
             </a>
           </div>
@@ -395,6 +432,12 @@
           </div>
           <p class="notice-small" id="home-demo-note" style="margin-top: 16px"></p>
         </section>
+        <div class="home-motion" id="home-motion" hidden>
+          <span data-icon="slidersHorizontal" aria-hidden="true"></span>
+          <span data-i18n="home.motion.title">Préférences de lecture</span>
+          <button class="btn btn-outline sm" type="button" id="home-motion-toggle" aria-pressed="false" data-i18n="home.motion.toggle">Défilement fluide</button>
+          <p role="status" id="home-motion-status" class="small muted" hidden></p>
+        </div>
       </div>
     </main>
 

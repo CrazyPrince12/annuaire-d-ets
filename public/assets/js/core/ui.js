@@ -425,6 +425,7 @@ export function errorMessage(error) {
   if (!error) return t("common.errorGeneric");
   if (error.offline) return t("common.errorNetwork");
   if (error.code === "timeout") return t("common.errorGeneric");
+  if (error.code === "db_unavailable") return t("common.databaseUnavailable");
   return error.message || t("common.errorGeneric");
 }
 

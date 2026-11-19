@@ -364,3 +364,10 @@ strong {
     color: #000;
   }
 }
+
+/* Transitions documentaires natives : aucune interception de lien ni de focus. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 160ms; }
+  :root[data-saver="true"] { view-transition-name: none; }
+}

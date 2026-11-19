@@ -9,7 +9,13 @@
  * Code de sortie 1 si une anomalie bloquante est détectée.
  */
 
-import { one } from "../server-api/_lib/db.js";
+import fs from "node:fs";
+import { one, databaseMode } from "../server-api/_lib/db.js";
+
+for (const name of [".env.local", ".env"]) {
+  const file = new URL(`../${name}`, import.meta.url);
+  if (fs.existsSync(file)) process.loadEnvFile(file);
+}
 
 const rows = [];
 function record(label, value, { ok = true, hint = "" } = {}) {
@@ -24,7 +30,7 @@ async function scalar(sql, params = []) {
 async function main() {
   console.log("\nCONGLOMERAT — contrôle de la base\n");
 
-  const mode = process.env.DATABASE_URL ? "Neon (DATABASE_URL)" : "PGlite en mémoire (démo)";
+  const mode = databaseMode();
   console.log(`  Source : ${mode}\n`);
 
   /* ------------------------------------------------------------- volumes */
@@ -214,9 +220,9 @@ let code = 0;
 try {
   code = await main();
 } catch (error) {
-  console.error("\n  Échec du contrôle :", error.message, "\n");
+  console.error("\n  Échec du contrôle :", error.reason || error.code || "unexpected_error", "\n");
   code = 1;
 } finally {
-  // PGlite et le pool Neon se terminent d'eux-mêmes : rien à fermer ici.
+  // PGlite et les connexions distantes se terminent d'eux-mêmes : rien à fermer ici.
 }
 process.exit(code);

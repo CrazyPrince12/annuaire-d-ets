@@ -6,7 +6,7 @@
  * reste utile en cas d'erreur réseau grâce au message d'état + bouton Réessayer.
  */
 
-import { get, post, session } from "../core/api.js";
+import { get, post } from "../core/api.js";
 import { t, formatNumber, formatDate } from "../core/i18n.js";
 import { icon } from "../core/icons.js";
 import { toast, confirmDialog } from "../core/toast.js";
@@ -38,7 +38,7 @@ import {
   revealOnScroll,
   setLoading,
 } from "../core/ui.js";
-import { createMiniMap } from "../core/map.js";
+import { trackView } from "../core/events.js";
 import { toggleFavorite, isFavorite, inCompare, toggleCompare, refreshButtons } from "../core/favorites.js";
 
 let company = null;
@@ -250,7 +250,7 @@ function renderContact(c) {
       }
       ${
         site
-          ? `<div><dt>${t("common.website")}</dt><dd><a class="link" href="${esc(site)}" target="_blank" rel="noopener noreferrer nofollow">${esc(
+          ? `<div><dt>${t("common.website")}</dt><dd><a class="link" href="${esc(site)}" target="_blank" rel="noopener noreferrer nofollow" data-track="site">${esc(
               websiteLabel(c.contacts.website)
             )}</a></dd></div>`
           : ""
@@ -459,13 +459,13 @@ function renderActionBar(c) {
   const wa = whatsappHref(c.phone, `${c.name} — via CONGLOMERAT`);
   host.innerHTML = `
     ${tel ? `<a class="btn btn-primary" href="${tel}" data-track="phone">${icon("phone", { size: 17 })} ${t("common.call")}</a>` : ""}
-    ${wa ? `<a class="btn btn-secondary icon-only" href="${wa}" target="_blank" rel="noopener noreferrer" aria-label="${t("common.whatsapp")}">${icon("whatsapp", { size: 18 })}</a>` : ""}
+    ${wa ? `<a class="btn btn-secondary icon-only" href="${wa}" target="_blank" rel="noopener noreferrer" data-track="whatsapp" aria-label="${t("common.whatsapp")}">${icon("whatsapp", { size: 18 })}</a>` : ""}
     <a class="btn btn-outline icon-only" href="${directionsUrl({
       lat: c.lat,
       lng: c.lng,
       address: c.address,
       label: c.name,
-    })}" target="_blank" rel="noopener noreferrer" aria-label="${t("common.directions")}">${icon("navigation", {
+    })}" target="_blank" rel="noopener noreferrer" data-track="direction" aria-label="${t("common.directions")}">${icon("navigation", {
       size: 18,
     })}</a>
     <button type="button" class="btn btn-ghost icon-only" data-open-review aria-label="${t("company.addReview")}">
@@ -918,8 +918,41 @@ function setMeta(data) {
   document.head.appendChild(ld);
 }
 
-export async function init({ user } = {}) {
+function renderLocation(c) {
+  const host = $("#company-map");
+  if (!host) return;
+  const coordinates = Number.isFinite(c.lat) && Number.isFinite(c.lng) &&
+    Math.abs(c.lat) <= 90 && Math.abs(c.lng) <= 180;
+  const address = [c.address, c.city?.name, "Cameroun"].filter(Boolean).join(", ");
+  if (!coordinates && !c.address) {
+    host.closest("#company-map-wrap").hidden = true;
+    return;
+  }
+  const external = c.provenance !== "exemple";
+  host.innerHTML = `
+    <p class="muted small">${esc(c.address || c.city?.name || c.name)}</p>
+    ${external ? `<button type="button" class="btn btn-secondary sm" data-load-map>
+      ${icon("mapPin", { size: 16 })} ${t("company.previewMap")}</button>
+      <p class="small muted">${t("company.mapPrivacy")}</p>` : ""}
+    <a class="link small" href="${esc(mapUrl({ lat: c.lat, lng: c.lng, label: c.name }))}">
+      ${t("company.openInMaps")}</a>`;
+  host.querySelector("[data-load-map]")?.addEventListener("click", (event) => {
+    const frame = document.createElement("iframe");
+    const params = new URLSearchParams({ q: coordinates ? `${c.lat},${c.lng}` : address, z: "16", output: "embed" });
+    frame.src = `https://www.google.com/maps?${params}`;
+    frame.className = "company-mini-map";
+    frame.title = `${t("company.mapTitle")} : ${c.name}`;
+    frame.loading = "lazy";
+    frame.referrerPolicy = "no-referrer";
+    frame.tabIndex = 0;
+    event.currentTarget.replaceWith(frame);
+    frame.focus({ preventScroll: true });
+  }, { once: true });
+}
+
+export async function init({ user, userReady } = {}) {
   currentUser = user || null;
+  userReady?.then((resolved) => { currentUser = resolved; });
   const slug = decodeURIComponent(location.pathname.split("/").filter(Boolean).pop() || "");
   const host = $("#company-root");
 
@@ -928,6 +961,18 @@ export async function init({ user } = {}) {
   } catch (error) {
     if (host) {
       const gone = error.status === 410;
+      if (!gone && error.status !== 404) {
+        const failure = host.querySelector("[data-company-failure]") || document.createElement("div");
+        failure.dataset.companyFailure = "";
+        failure.className = "container section";
+        failure.innerHTML = errorState({ text: errorMessage(error), retryAttr: "data-company-retry" });
+        host.prepend(failure);
+        failure.querySelector("button")?.addEventListener("click", () => {
+          failure.remove();
+          init({ user, userReady });
+        });
+        return;
+      }
       host.innerHTML = `
         <div class="container section">
           <div class="empty-state">
@@ -970,28 +1015,12 @@ export async function init({ user } = {}) {
     });
   }
 
-  const mapHost = $("#company-map");
-  if (mapHost && Number.isFinite(company.lat)) {
-    createMiniMap(mapHost, company).catch(() => {
-      mapHost.innerHTML = `<a class="map-fallback" href="${mapUrl({
-        lat: company.lat,
-        lng: company.lng,
-        label: company.name,
-      })}">${icon("mapPin", { size: 18 })} ${t("company.openInMaps")}</a>`;
-    });
-  } else if (mapHost) {
-    mapHost.closest(".contact-card")?.querySelector("#company-map-wrap")?.setAttribute("hidden", "");
-  }
+  renderLocation(company);
 
   const fav = document.querySelector(`[data-favorite="${company.slug}"]`);
   if (fav) fav.setAttribute("aria-pressed", String(isFavorite(company.slug)));
 
-  // Vue enregistrée pour les statistiques (une par session suffit).
-  const seen = sessionStorage.getItem(`cg:seen:${company.slug}`);
-  if (!seen) {
-    sessionStorage.setItem(`cg:seen:${company.slug}`, "1");
-    post("/events", { kind: "view", companySlug: company.slug }).catch(() => null);
-  }
+  trackView(company.slug);
 
   revealOnScroll();
   document.title = `${company.name} — CONGLOMERAT`;
