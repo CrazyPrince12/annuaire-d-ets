@@ -23,6 +23,9 @@ import { errorMessage } from "./ui.js";
 /* 1 — thème (évite tout clignotement clair/sombre) */
 initTheme();
 
+/* 1b — couche « God dev » : verre, boutons, transitions, préchargement (progressif, jamais bloquant) */
+import("./god.js").then((module) => module.initGod()).catch(() => null);
+
 /* 2 — langue + chrome partagé */
 applyTranslations();
 hydrateIcons();
