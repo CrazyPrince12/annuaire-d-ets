@@ -2,7 +2,8 @@
  * Client HTTP des fonctions /api.
  *
  * • une seule enveloppe de réponse côté serveur : `{ ok, data }` / `{ ok, error }`
- * • délai maximum, nouvelle tentative unique sur les GET, annulation
+ * • délai maximum, nouvelle tentative unique sur les GET (réseau, 502/503/504), annulation
+ * • les statistiques (/events) partent en `keepalive` et sont rejouées une fois
  * • cache mémoire court pour les appels de lecture (accueil, méta, filtres)
  * • erreurs typées (`ApiError`) avec `status`, message traduit côté appelant
  */
@@ -10,7 +11,11 @@
 import { t } from "./i18n.js";
 
 const BASE = "/api";
-const DEFAULT_TIMEOUT = 12_000;
+// Au-dessus du budget serveur (8,5 s sur Vercel, 30 s sur Render) pour laisser
+// le temps à Neon de se réveiller au lieu d'abandonner trop tôt.
+const DEFAULT_TIMEOUT = 20_000;
+const RETRYABLE_STATUS = new Set([502, 503, 504]);
+const RETRY_DELAY_MS = 900;
 
 export class ApiError extends Error {
   constructor(message, { status = 0, code = "error", details = null, offline = false } = {}) {
@@ -51,7 +56,7 @@ export function buildUrl(path, params) {
  * Requête JSON.
  * @param {string} path chemin relatif à /api (« /companies »)
  * @param {{method?:string, body?:any, params?:object, timeout?:number, cacheMs?:number,
- *          signal?:AbortSignal, retry?:boolean}} [options]
+ *          signal?:AbortSignal, retry?:boolean, keepalive?:boolean}} [options]
  */
 export async function request(path, options = {}) {
   const {
@@ -61,7 +66,8 @@ export async function request(path, options = {}) {
     timeout = DEFAULT_TIMEOUT,
     cacheMs = 0,
     signal,
-    retry = method === "GET",
+    retry = method === "GET" || path === "/events",
+    keepalive = path === "/events",
   } = options;
 
   const url = buildUrl(path, params);
@@ -98,11 +104,16 @@ export async function request(path, options = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal: controller.signal,
       cache: method === "GET" ? "no-cache" : "no-store",
+      // Les statistiques survivent à un changement de page (clic sur « Appeler », etc.).
+      keepalive: keepalive && method !== "GET",
     });
   } catch (err) {
     clearTimeout(timer);
     if (signal?.aborted) throw err;
-    if (retry) return request(path, { ...options, retry: false });
+    if (retry) {
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+      return request(path, { ...options, retry: false });
+    }
     const aborted = err?.name === "AbortError" || err?.name === "TimeoutError";
     throw new ApiError(t(aborted ? "common.errorGeneric" : "common.errorNetwork"), {
       code: aborted ? "timeout" : "network",
@@ -110,6 +121,12 @@ export async function request(path, options = {}) {
   } finally {
     clearTimeout(timer);
     if (signal) signal.removeEventListener("abort", onAbort);
+  }
+
+  // Base qui se réveille ou instance qui démarre : une seconde chance suffit presque toujours.
+  if (retry && RETRYABLE_STATUS.has(response.status)) {
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    return request(path, { ...options, retry: false });
   }
 
   let payload = null;
