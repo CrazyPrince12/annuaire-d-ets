@@ -25,8 +25,13 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '512kb' }));
 app.use(express.urlencoded({ extended: false, limit: '512kb' }));
 
+// Sonde légère pour Render (Health Check Path = /healthz) : ne touche PAS la
+// base, sinon chaque sondage réveillerait Neon en permanence.
+app.get('/healthz', (req, res) => res.type('text/plain').send('ok'));
+
 // Enregistrer les handlers existants, hors du dossier spécial /api de Vercel.
 // Les imports restent littéraux pour que le bundler trace toutes les dépendances.
+import { warmUp, startKeepAlive } from './server-api/_lib/db.js';
 import handler0 from './server-api/admin/actions.js';
 import handler1 from './server-api/admin/data.js';
 import handler2 from './server-api/apply.js';
@@ -134,5 +139,18 @@ export default app;
 // Vercel importe l'application ; Render et npm start lancent un serveur HTTP.
 if (!process.env.VERCEL && process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
   const port = Number(process.env.PORT || 3000);
-  app.listen(port, '0.0.0.0', () => console.log(`CONGLOMERAT — Express sur le port ${port}`));
+  const server = app.listen(port, '0.0.0.0', () => {
+    console.log(`CONGLOMERAT — Express sur le port ${port}`);
+    // Réveille Neon dès le démarrage ; si la base est vide, crée schéma + données
+    // en arrière-plan (désactivable avec DB_AUTO_INIT=0).
+    warmUp({ bootstrap: process.env.DB_AUTO_INIT !== '0' })
+      .then((report) => console.log('[db] préchauffage', JSON.stringify(report)))
+      .catch((error) => console.warn('[db] préchauffage impossible :', error?.message || error));
+    // Garde Neon éveillé tant que le serveur tourne (désactivable avec DB_KEEPALIVE=0).
+    if (process.env.DB_KEEPALIVE !== '0') startKeepAlive();
+  });
+  // Évite les 502 sporadiques derrière le proxy de Render (délais supérieurs au sien).
+  server.keepAliveTimeout = 65_000;
+  server.headersTimeout = 66_000;
+  process.on('SIGTERM', () => server.close(() => process.exit(0)));
 }
