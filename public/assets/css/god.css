@@ -1,0 +1,254 @@
+/* ============================================================================
+   CONGLOMERAT — couche « God dev »
+   Améliorations progressives par-dessus tokens.css / components.css :
+   rien ici n'est indispensable, tout se dégrade proprement.
+   Chargée par core/god.js. Respecte prefers-reduced-motion et le mode économie
+   de données (html[data-saver="true"]).
+   ========================================================================== */
+
+/* ------------------------------------------------ 1. Transitions de page natives */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--dur-3);
+  animation-timing-function: var(--ease);
+}
+
+html {
+  scroll-padding-top: calc(var(--header-h) + 12px);
+}
+
+/* ------------------------------------------------ 2. Progression de lecture (CSS pur) */
+.god-progress {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 1000;
+  height: 3px;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+@supports (animation-timeline: scroll()) {
+  .god-progress {
+    animation: god-progress linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  @keyframes god-progress {
+    to {
+      transform: scaleX(1);
+    }
+  }
+}
+
+@supports not (animation-timeline: scroll()) {
+  .god-progress {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------ 3. Verre dépoli */
+.glass,
+.site-header {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+}
+
+.glass {
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass,
+  .site-header {
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  }
+}
+
+/* ------------------------------------------------ 4. Boutons 2026 */
+/* N° 5 « Morph Shape » : le bouton principal change de forme et se remplit. */
+@media (prefers-reduced-motion: no-preference) {
+  .btn-primary {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform var(--dur-1) var(--ease),
+      border-radius var(--dur-3) var(--ease),
+      box-shadow var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease),
+      color var(--dur-2) var(--ease);
+  }
+
+  .btn-primary::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: color-mix(in srgb, var(--primary) 72%, white);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-3) var(--ease);
+  }
+
+  @media (hover: hover) {
+    .btn-primary:hover:not(:disabled, [aria-disabled="true"]) {
+      border-radius: 28px 10px 28px 10px;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-primary:hover:not(:disabled, [aria-disabled="true"])::before {
+      transform: scaleX(1);
+    }
+  }
+
+  /* Retour tactile commun à tous les boutons. */
+  .btn:active:not(:disabled, [aria-disabled="true"]) {
+    transform: scale(0.96);
+  }
+}
+
+/* N° 15 « Icon Slide » : la flèche glisse vers la droite (détectée par :has). */
+@supports selector(:has(*)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .btn:has(svg path[d^="M5 12h14"]) svg,
+    .btn-icon-slide svg {
+      transition: transform var(--dur-3) var(--ease);
+    }
+
+    @media (hover: hover) {
+      .btn:hover:has(svg path[d^="M5 12h14"]) svg,
+      .btn-icon-slide:hover svg {
+        transform: translateX(5px);
+      }
+    }
+  }
+}
+
+/* N° 12 « Underline Reveal » : liens du pied de page. */
+.site-footer a:not(.btn) {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size var(--dur-3) var(--ease);
+}
+
+@media (hover: hover) {
+  .site-footer a:not(.btn):hover,
+  .site-footer a:not(.btn):focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+/* N° 21 « Premium » : bordure conique animée (offres premium). */
+@property --god-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.btn-premium,
+.btn[data-premium] {
+  border: 1px solid transparent;
+  color: var(--text);
+  background:
+    linear-gradient(var(--surface-2), var(--surface-2)) padding-box,
+    conic-gradient(from var(--god-angle), var(--accent), var(--primary), var(--accent)) border-box;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn-premium,
+  .btn[data-premium] {
+    animation: god-spin 6s linear infinite;
+  }
+
+  @keyframes god-spin {
+    to {
+      --god-angle: 360deg;
+    }
+  }
+}
+
+/* Sceau premium (opt-in) : <a class="seal-btn">★</a> */
+.seal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--primary-line);
+  background: var(--glass-bg);
+  color: var(--accent);
+  font-size: 2rem;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .seal-btn:hover {
+    transform: translateY(-6px) scale(1.05);
+    box-shadow: var(--shadow-glow);
+  }
+}
+
+/* ------------------------------------------------ 5. Animation de texte (titre de page) */
+.god-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  /* évite de rogner les jambages (g, p, y) */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .god-word > span {
+    display: inline-block;
+    animation: god-rise var(--dur-4) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 45ms);
+  }
+
+  @keyframes god-rise {
+    from {
+      transform: translateY(105%);
+      opacity: 0;
+    }
+
+    to {
+      transform: none;
+      opacity: 1;
+    }
+  }
+}
+
+/* ------------------------------------------------ 6. Accessibilité */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .god-progress {
+    display: none;
+  }
+
+  .btn-premium,
+  .btn[data-premium] {
+    animation: none;
+  }
+}
+
+/* Mode économie de données : on retire les effets coûteux. */
+:root[data-saver="true"] .god-progress {
+  display: none;
+}
